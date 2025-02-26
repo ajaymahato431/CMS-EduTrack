@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,67 +13,89 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/loginpage.css') }}">
 </head>
+
 <body>
 
     <div class="container" id="container">
         <div class="form-container sign-up">
-            @if($errors->any())
-        @foreach($errors->all() as $error)
-        <p style="color:red;">{{ $error }}</p>
-        @endforeach
-    @endif
 
-    <form action="{{ route('register') }}" method="POST" enctype="multipart/form-data">
-        @csrf
+            <form action="{{ route('register') }}" method="POST" enctype="multipart/form-data">
+                @csrf
                 <h1>Create Account</h1>
-                <div class="social-icons">
+
+                {{-- <div class="social-icons">
                     <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
                     <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
                     <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
                     <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
-                </div>
-                <span>or use your email for registeration</span>
-                <input type="text" name="name" placeholder="Name">
-                <input type="email" name="email" placeholder="Email">
-                <input type="password" name="password" placeholder="Password">
-                <input type="password" name="password_confirmation" placeholder="Confirm Password">
-                <input type="file" name="image" placeholder="Choose Profile Image">
+                </div> --}}
+
+                <span>Use your email for registration</span>
+
+                <input type="text" name="name" placeholder="Name" value="{{ old('name') }}">
+                @error('name')
+                    <span style="color: red;">{{ $message }}</span>
+                @enderror
+
+                <input type="email" name="emailr" placeholder="Email" value="{{ old('emailr') }}">
+                @error('emailr')
+                    <span style="color: red;">{{ $message }}</span>
+                @enderror
+
+                <input type="password" name="passwordr" placeholder="Password">
+                @error('passwordr')
+                    <span style="color: red;">{{ $message }}</span>
+                @enderror
+
+                <input type="password" name="passwordr_confirmation" placeholder="Confirm Password">
+
+                <input type="file" name="image">
+                @error('image')
+                    <span style="color: red;">{{ $message }}</span>
+                @enderror
+
+                @if (session('success'))
+                    <p style="color: green;">{{ session('success') }}</p>
+                @endif
+
                 <button type="submit">Sign Up</button>
             </form>
 
-            @if(Session::has('success'))
-            <script>
-        <p style="color:green;">{{ Session::get('success') }}</p>
-            </script>
-        @endif
         </div>
         <div class="form-container sign-in">
-           
-            @if($errors->any())
-        @foreach($errors->all() as $error)
-        <p style="color:red;">{{ $error }}</p>
-        @endforeach
-    @endif
 
-    @if(Session::has('error'))
-        <p style="color:red;">{{ Session::get('error') }}</p>
-    @endif
-
-    <form action="{{ route('login') }}" method="POST">
-        @csrf
+            <form action="{{ route('login') }}" method="POST">
+                @csrf
                 <h1>Sign In</h1>
-                <div class="social-icons">
+
+                {{-- <div class="social-icons">
                     <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
                     <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
                     <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
                     <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
-                </div>
-                <span>or use your email password</span>
-                <input type="email" name="email" placeholder="Email">
-                <input type="password" name="password" placeholder="Password">
+                </div> --}}
+
+                <span>Use your email password</span>
+
+                <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
+                @error('email')
+                    <span style="color: red;">{{ $message }}</span>
+                @enderror
+
+                <input type="password" name="password" placeholder="Password" required>
+                @error('password')
+                    <span style="color: red;">{{ $message }}</span>
+                @enderror
+
                 <a href="#">→ Forget Your Password? ←</a>
+
+                @if (session('error'))
+                    <p style="color: red;">{{ session('error') }}</p>
+                @endif
+
                 <button type="submit">Sign In</button>
             </form>
+
         </div>
         <div class="toggle-container">
             <div class="toggle">
@@ -105,6 +128,7 @@
             container.classList.remove("active");
         });
     </script>
-    
+
 </body>
+
 </html>

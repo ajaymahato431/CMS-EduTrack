@@ -5,6 +5,8 @@ use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Response;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,11 +20,11 @@ use App\Http\Controllers\AdminController;
 */
 
 
-Route::get('/register', [AuthController::class, 'loadRegister']);
+// Route::get('/register', [AuthController::class, 'loadRegister']);
 Route::post('/register', [AuthController::class, 'register'])->name('register');
-Route::get('/login', function () {
-    return redirect('/');
-});
+// Route::get('/login', function () {
+//     return redirect('/');
+// });
 Route::get('/', [AuthController::class, 'loadLogin']);
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/logout', [AuthController::class, 'logout']);
