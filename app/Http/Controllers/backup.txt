@@ -1,0 +1,113 @@
+course control file
+
+public function addCourse(Request $request)
+    {
+        // $request->validate([
+        //     'course_name' => 'string|required|unique:courses',
+        //     'credit_hours' => 'required|numeric',
+        //     'fee' => 'required|numeric'
+        // ]);
+
+        $course = new course;
+        $course->course_name = $request->course_name;
+        $course->credit_hours = $request->credit_hours;
+        $course->fee = $request->fee;
+        $course->save();
+
+        return back()->with('success','Your Registration has been successfull.');
+    }
+
+    public function editCourse(Request $request)
+    {
+        // Retrieve user details from the request
+        $courseId = $request->userId;
+        $course_name = $request->course_name;
+        $credit_hours = $request->credit_hours;
+        $fee =$request->fee;
+
+        // Update the user record in the database
+        course::where('id', $courseId)->update([
+            'course_name' => $course_name,
+            'credit_hours' => $credit_hours,
+            'fee' => $fee,
+        ]);
+
+        // Redirect back to the previous page
+        return redirect()->back();
+    }
+
+    public function deleteCourse(Request $request)
+    {
+
+        $id = $request->user;
+
+        $record = course::find($id);
+
+        if ($record) {
+            $record->delete();
+        }
+
+        return redirect()->back();
+    }
+
+
+
+    students
+
+
+    
+        public function addStudent(Request $request)
+        {
+            $request->validate([
+                'name' => 'string|required|min:2',
+                'phone' => 'int|required|min:10|max:10|unique:students',
+            ]);
+    
+            $student = new students;
+            $student->name = $request->name;
+            $student->sex = $request->sex;
+            $student->phone = $request->phone;
+            $student->address = $request->address;
+            $student->course_name = $request->course_name;
+            $student->paid_fee = $request->paid_fee;
+            $student->save();
+    
+            return redirect()->back();
+        }
+    
+        public function editStudent(Request $request)
+        {
+            // Retrieve user details from the request
+            $studentId = $request->userId;
+            $name = $request->name;
+            $sex = $request->sex;
+            $phone =$request->phone;
+            $address =$request->address;
+
+    
+            // Update the user record in the database
+            course::where('id', $studentId)->update([
+                'name' => $name,
+                'sex' => $sex,
+                'phone' => $phone,
+                'address' => $address,
+
+            ]);
+    
+            // Redirect back to the previous page
+            return redirect()->back();
+        }
+    
+        public function deleteStudent(Request $request)
+        {
+    
+            $id = $request->user;
+    
+            $record = students::find($id);
+    
+            if ($record) {
+                $record->delete();
+            }
+    
+            return redirect()->back();
+        }
