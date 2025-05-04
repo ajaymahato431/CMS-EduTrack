@@ -46,9 +46,9 @@
                         ID = {{ Auth::user()->id }} <br>
                         Email = {{ Auth::user()->email }} <br>
                         Department =
-                        @if (Auth::user()->role === 1)
+                        @if (Auth::user()->role_id === 1)
                             Admin
-                        @elseif (Auth::user()->role === 2)
+                        @elseif (Auth::user()->role_id === 2)
                             Teacher
                         @else
                             Student

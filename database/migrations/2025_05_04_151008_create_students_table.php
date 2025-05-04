@@ -17,8 +17,9 @@ return new class extends Migration
             $table->string('sex');
             $table->integer('phone');
             $table->string('address')->nullable();
-            $table->bigInteger('course_id')->unsigned()->index()->nullable();
-            $table->foreign('course_id')->references('course_id')->on('courses')->onDelete('cascade');
+            $table->foreignId('course_id')
+                ->constrained('courses')
+                ->onDelete('cascade');
             $table->integer('paid_fee');
             $table->timestamps();
         });

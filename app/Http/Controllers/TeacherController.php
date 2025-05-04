@@ -1,266 +1,198 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\course;
-use App\Models\students;
+use App\Models\Course;
+use App\Models\Student;
 use App\Models\Role;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
-
 
 class TeacherController extends Controller
 {
-   
-    //View Section
+    // View Section
     public function dashboard()
     {
-        $user = DB::table('users')
-        ->join('roles', 'users.role', '=', 'roles.role_id');
+        $user = Auth::user();
         return view('teacher.dashboard', compact('user'));
-
     }
-
-    // public function users()
-    // {
-    //     $users = DB::table('users')
-    //     ->join('roles', 'users.role', '=', 'roles.role_id')
-    //     ->where('id', '!=', auth()->user()->id)
-    //     ->paginate(8); 
-    //     $roles = Role::all();
-    //     return view('admin.user', compact(['users', 'roles']));
-    // }
-
-    // public function manageRole()
-    // {
-    //     $users = User::where('role', '!=', 1)->get();
-    //     $roles = Role::all();
-    //     return view('admin.manage-role', compact(['users', 'roles']));
-    // }
-
-    // public function updateRole(Request $request)
-    // {
-    //     User::where('id', $request->user_id)->update([
-    //         'role' => $request->role_id,
-    //     ]);
-    //     return redirect()->back();
-    // }
 
     public function course()
     {
-        $course = course::paginate(8);
-        return view('teacher.course', compact('course'));
+        $courses = Course::paginate(8);
+        return view('teacher.course', compact('courses'));
     }
 
     public function students()
-{
-    $students = DB::table('students')
-    ->join('courses', 'students.course_id', '=', 'courses.course_id')
-    ->paginate(8);     
-    $courses = Course::all();
-    return view('teacher.students', compact('students', 'courses'));
-}
-
-
-
-    // User Section
-
-
-
-    // public function editUser(Request $request)
-    // {
-    //     // Retrieve user details from the request
-    //     $userId = $request->userId;
-    //     $name = $request->name;
-    //     $email = $request->email;
-    //     $password = Hash::make($request->password);
-    //     // $role_id = $request->role_id; // Uncomment this if you're also updating the role
-
-    //     // Update the user record in the database
-    //     User::where('id', $userId)->update([
-    //         'name' => $name,
-    //         'email' => $email,
-    //         'password' => $password,
-    //         // 'role_id' => $role_id, // Uncomment this if you're also updating the role
-    //     ]);
-
-    //     // Redirect back to the previous page
-    //     return redirect()->back();
-    // }
-
-    // public function deleteUser(Request $request)
-    // {
-
-    //     $id = $request->user;
-
-    //     $record = User::find($id);
-
-    //     if ($record) {
-    //         $record->delete();
-    //     }
-
-    //     return redirect()->back();
-    // }
-
-
+    {
+        $students = Student::with('course')->paginate(8);
+        $courses = Course::all();
+        return view('teacher.students', compact('students', 'courses'));
+    }
 
     // Course Section
-
     public function addCourse(Request $request)
     {
         $request->validate([
-            'course_name' => 'required|string|unique:courses',
-            'credit_hours' => 'required|integer',
-            'fee' => 'required|integer',
+            'course_name' => 'required|string|unique:courses,course_name',
+            'credit_hours' => 'required|integer|min:1',
+            'fee' => 'required|integer|min:0',
         ]);
-    
-        $course = new Course;
-        $course->course_name = $request->course_name;
-        $course->credit_hours = $request->credit_hours;
-        $course->fee = $request->fee;
-        $course->save();
-    
+
+        Course::create([
+            'course_name' => $request->course_name,
+            'credit_hours' => $request->credit_hours,
+            'fee' => $request->fee,
+        ]);
+
         return redirect()->back()->with('success', 'Course added successfully.');
     }
 
     public function editCourse(Request $request)
     {
-        // Retrieve user details from the request
-        $courseId = $request->userId;
-        $course_name = $request->course_name;
-        $credit_hours = $request->credit_hours;
-        $fee =$request->fee;
-
-        // Update the user record in the database
-        course::where('course_id', $courseId)->update([
-            'course_name' => $course_name,
-            'credit_hours' => $credit_hours,
-            'fee' => $fee,
+        $request->validate([
+            'userId' => 'required|exists:courses,id',
+            'course_name' => 'required|string|unique:courses,course_name,' . $request->userId,
+            'credit_hours' => 'required|integer|min:1',
+            'fee' => 'required|integer|min:0',
         ]);
 
-        // Redirect back to the previous page
-        return redirect()->back();
+        Course::findOrFail($request->userId)->update([
+            'course_name' => $request->course_name,
+            'credit_hours' => $request->credit_hours,
+            'fee' => $request->fee,
+        ]);
+
+        return redirect()->back()->with('success', 'Course updated successfully.');
     }
 
     public function deleteCourse(Request $request)
     {
+        $request->validate([
+            'user' => 'required|exists:courses,id',
+        ]);
 
-        $id = $request->user;
+        Course::findOrFail($request->user)->delete();
 
-        // $record = course::find($course_id);
-
-        // if ($record) {
-        //     $record->delete();
-        // }
-
-        $course = DB::table('courses')->where('course_id',$id)->delete();
-
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Course deleted successfully.');
     }
-    
 
-        // Student Section
+    // Student Section
+    public function addStudent(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|min:2',
+            'sex' => 'required|in:male,female,other',
+            'phone' => 'required|string|max:15',
+            'address' => 'required|string',
+            'course_id' => 'required|exists:courses,id',
+            'paid_fee' => 'required|integer|min:0',
+        ]);
 
-        public function addStudent(Request $request)
-        {
-                
-            $student = new students();
-            $student->name = $request->name;
-            $student->sex = $request->sex;
-            $student->phone = $request->phone;
-            $student->address = $request->address;
-            $student->course_id = $request->course_id;
-            $student->paid_fee = $request->paid_fee;
-            $student->save();
-    
-            return back()->with('success', 'Student added successfully.');
-        }
-    
-        public function editStudent(Request $request)
-        {
-              
-            students::where('id', $request->userId)->update([
-                'name' => $request->name,
-                'sex' => $request->sex,
-                'phone' => $request->phone,
-                'address' => $request->address,
-                'course_id' => $request->course_id,
-                'paid_fee' => $request->paid_fee,
-            ]);
-    
-            return back()->with('success', 'Student updated successfully.');
-        }
-    
-        public function deleteStudent(Request $request)
-        {
-            $id = $request->user;
+        Student::create($request->only([
+            'name',
+            'sex',
+            'phone',
+            'address',
+            'course_id',
+            'paid_fee',
+        ]));
 
-        $record = students::find($id);
+        return redirect()->back()->with('success', 'Student added successfully.');
+    }
 
-        if ($record) {
-            $record->delete();
-        }
+    public function editStudent(Request $request)
+    {
+        $request->validate([
+            'userId' => 'required|exists:students,id',
+            'name' => 'required|string|min:2',
+            'sex' => 'required|in:male,female,other',
+            'phone' => 'required|string|max:15',
+            'address' => 'required|string',
+            'course_id' => 'required|exists:courses,id',
+            'paid_fee' => 'required|integer|min:0',
+        ]);
 
-            return back()->with('success', 'Student deleted successfully.');
-        }
+        Student::findOrFail($request->userId)->update($request->only([
+            'name',
+            'sex',
+            'phone',
+            'address',
+            'course_id',
+            'paid_fee',
+        ]));
 
-        //Update Profile Section
+        return redirect()->back()->with('success', 'Student updated successfully.');
+    }
 
-        public function updateName(Request $request)
-        {
-            $request->validate([
-                'name' => 'string|required|min:2',
-               
-            ]);
-              
-            User::where('id', $request->userId)->update([
-                'name' => $request->name,                
-            ]);
-    
-            return back()->with('success', 'Student updated successfully.');
-        }
+    public function deleteStudent(Request $request)
+    {
+        $request->validate([
+            'user' => 'required|exists:students,id',
+        ]);
 
-        public function updatePassword(Request $request)
-        {
-            $request->validate([
-                
-                'password' =>'string|required|confirmed|min:6'
-            ]);
-              
-            User::where('id', $request->userId)->update([
-                'password' => Hash::make($request->password),                
-            ]);
-    
-            return back()->with('success', 'Student updated successfully.');
-        }
+        Student::findOrFail($request->user)->delete();
 
-        public function updateProfile(Request $request)
-        {
-            // Update the profile image if a file is provided
-            if ($request->hasFile('image')) {
-                $user = User::find($request->userId);
-        
-                // Delete any existing image file
-                if ($user->profile_photo_path) {
-                    $existingImagePath = storage_path('public/' . $user->profile_photo_path);
-                    if (file_exists($existingImagePath)) {
-                        unlink($existingImagePath);
-                    }
+        return redirect()->back()->with('success', 'Student deleted successfully.');
+    }
+
+    // Update Profile Section
+    public function updateName(Request $request)
+    {
+        $request->validate([
+            'userId' => 'required|exists:users,id',
+            'name' => 'required|string|min:2',
+        ]);
+
+        User::findOrFail($request->userId)->update([
+            'name' => $request->name,
+        ]);
+
+        return redirect()->back()->with('success', 'Name updated successfully.');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'userId' => 'required|exists:users,id',
+            'password' => 'required|string|confirmed|min:6',
+        ]);
+
+        User::findOrFail($request->userId)->update([
+            'password' => Hash::make($request->password),
+        ]);
+
+        return redirect()->back()->with('success', 'Password updated successfully.');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $request->validate([
+            'userId' => 'required|exists:users,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $user = User::findOrFail($request->userId);
+
+        if ($request->hasFile('image')) {
+            // Delete existing image if it exists
+            if ($user->profile_photo_path) {
+                $existingImagePath = storage_path('app/public/' . $user->profile_photo_path);
+                if (file_exists($existingImagePath)) {
+                    unlink($existingImagePath);
                 }
-        
-                // Store the new image
-                $file = $request->file('image');
-                $extension = $file->getClientOriginalExtension();
-                $filename = time() . '.' . $extension;
-                $path = $file->storeAs('public', $filename);
-        
-                // Update the user's profile photo path
-                $user->profile_photo_path = $filename;
-                $user->save();
             }
-        
-            return back()->with('success', 'Profile updated successfully.');
+
+            // Store new image
+            $file = $request->file('image');
+            $filename = time() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('public', $filename);
+
+            $user->update(['profile_photo_path' => $filename]);
         }
 
+        return redirect()->back()->with('success', 'Profile updated successfully.');
+    }
 }

@@ -34,6 +34,7 @@ class AuthController extends Controller
         $user->name = $request->name;
         $user->email = $request->emailr; // Store emailr into the email column
         $user->password = Hash::make($request->passwordr); // Hash the password
+        $user->role_id = 3; // Default role ID for new users
 
         // Handle image upload
         if ($request->hasFile('image')) {
@@ -79,14 +80,13 @@ class AuthController extends Controller
         return view('user.dashboard');
     }
 
-
     public function redirectDash()
     {
         $redirect = '';
 
-        if (Auth::user() && Auth::user()->role == "1") {
+        if (Auth::user() && Auth::user()->role_id == "1") {
             $redirect = '/admin/dashboard';
-        } else if (Auth::user() && Auth::user()->role == "2") {
+        } else if (Auth::user() && Auth::user()->role_id == "2") {
             $redirect = '/teacher/dashboard';
         } else {
             $redirect = '/home';

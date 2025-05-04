@@ -19,7 +19,7 @@
                 </select>
             </div>
         </div>
-        <div class="row mt-3">
+        <div class="mt-3 row">
             <div class="col-md-2">
                 <label for="">Select Role</label>
             </div>
@@ -27,7 +27,7 @@
                 <select name="role_id" required class="form-control" style="border: 1px solid;">
                     <option value="">Select Role</option>
                     @foreach ($roles as $role)
-                        <option value="{{ $role->role_id }}">{{ $role->role_name }}</option>
+                        <option value="{{ $role->id }}">{{ $role->role_name }}</option>
                     @endforeach
                 </select>
             </div>
