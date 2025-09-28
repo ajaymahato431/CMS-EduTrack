@@ -16,46 +16,44 @@
 
 <body>
 
-    <div class="container" id="container">
+    @php
+    $registrationHasError = $errors->has('name') || $errors->has('emailr') || $errors->has('passwordr') ||
+    $errors->has('passwordr_confirmation') || $errors->has('image');
+    @endphp
+
+    <div class="container{{ $registrationHasError ? ' active' : '' }}" id="container">
         <div class="form-container sign-up">
 
             <form action="{{ route('register') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <h1>Create Account</h1>
 
-                {{-- <div class="social-icons">
-                    <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
-                    <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
-                    <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
-                </div> --}}
-
                 <span>Use your email for registration</span>
 
                 <input type="text" name="name" placeholder="Name" value="{{ old('name') }}">
                 @error('name')
-                    <span style="color: red;">{{ $message }}</span>
+                <span style="color: red;">{{ $message }}</span>
                 @enderror
 
                 <input type="email" name="emailr" placeholder="Email" value="{{ old('emailr') }}">
                 @error('emailr')
-                    <span style="color: red;">{{ $message }}</span>
+                <span style="color: red;">{{ $message }}</span>
                 @enderror
 
                 <input type="password" name="passwordr" placeholder="Password">
                 @error('passwordr')
-                    <span style="color: red;">{{ $message }}</span>
+                <span style="color: red;">{{ $message }}</span>
                 @enderror
 
                 <input type="password" name="passwordr_confirmation" placeholder="Confirm Password">
 
                 <input type="file" name="image">
                 @error('image')
-                    <span style="color: red;">{{ $message }}</span>
+                <span style="color: red;">{{ $message }}</span>
                 @enderror
 
                 @if (session('success'))
-                    <p style="color: green;">{{ session('success') }}</p>
+                <p style="color: green;">{{ session('success') }}</p>
                 @endif
 
                 <button type="submit">Sign Up</button>
@@ -68,29 +66,22 @@
                 @csrf
                 <h1>Sign In</h1>
 
-                {{-- <div class="social-icons">
-                    <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
-                    <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
-                    <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
-                </div> --}}
-
                 <span>Use your email password</span>
 
                 <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
                 @error('email')
-                    <span style="color: red;">{{ $message }}</span>
+                <span style="color: red;">{{ $message }}</span>
                 @enderror
 
                 <input type="password" name="password" placeholder="Password" required>
                 @error('password')
-                    <span style="color: red;">{{ $message }}</span>
+                <span style="color: red;">{{ $message }}</span>
                 @enderror
 
                 <a href="#">→ Forget Your Password? ←</a>
 
                 @if (session('error'))
-                    <p style="color: red;">{{ session('error') }}</p>
+                <p style="color: red;">{{ session('error') }}</p>
                 @endif
 
                 <button type="submit">Sign In</button>
