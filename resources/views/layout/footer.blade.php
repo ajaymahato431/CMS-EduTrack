@@ -1,4 +1,4 @@
-<footer class="footer">
+﻿<footer class="footer">
     <div class="container-fluid">
         <div class="footer-in">
             <p class="mb-0">&copy {{ now()->year }} EduTrack . <a href="https://www.ajaymahato9988.com.np/"
@@ -14,69 +14,245 @@
 </div>
 
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="{{asset('js/jquery-3.3.1.slim.min.js')}}"></script>
-<script src="{{asset('js/popper.min.js')}}"></script>
-<script src="{{asset('js/bootstrap.min.js')}}"></script>
-<script src="{{asset('js/jquery-3.3.1.min.js')}}"></script>
+<script src="{{ asset('js/jquery-3.3.1.slim.min.js') }}"></script>
+<script src="{{ asset('js/popper.min.js') }}"></script>
+<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+<script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
 
 <script>
-    $(document).ready(function(){
-// Toggle sidebar and content area
-$(".xp-menubar").on('click',function(){
-$("#sidebar").toggleClass('active');
-$("#content").toggleClass('active');
-highlightActiveMenuItem(); // Call function to highlight active menu item
-});
+    $(function () {
+        function highlightActiveMenuItem() {
+            var currentUrl = window.location.pathname;
+            $('.list-unstyled .active').removeClass('active');
+            $('.list-unstyled a').each(function () {
+                var menuItemUrl = $(this).attr('href');
+                if (currentUrl === menuItemUrl) {
+                    $(this).closest('li').addClass('active');
+                    $(this).closest('.collapse').addClass('show');
+                }
+            });
+        }
 
-// Toggle sidebar and overlay
-$('.xp-menubar,.body-overlay').on('click',function(){
-$("#sidebar,.body-overlay").toggleClass('show-nav');
-});
+        $('.xp-menubar').on('click', function () {
+            $('#sidebar').toggleClass('active');
+            $('#content').toggleClass('active');
+            highlightActiveMenuItem();
+        });
 
-// Function to highlight active menu item
-function highlightActiveMenuItem() {
-var currentUrl = window.location.pathname;
-$('.list-unstyled .active').removeClass('active'); // Remove active class from previous menu item
-$('.list-unstyled a').each(function() {
-  var menuItemUrl = $(this).attr('href');
-  if (currentUrl === menuItemUrl) {
-    $(this).closest('li').addClass('active');
-    $(this).closest('.collapse').addClass('show');
-  }
-});
-}
+        $('.xp-menubar, .body-overlay').on('click', function () {
+            $('#sidebar, .body-overlay').toggleClass('show-nav');
+        });
 
-// Call the function on page load
-highlightActiveMenuItem();
-});
+        highlightActiveMenuItem();
 
+        function initCheckboxGroup(wrapper) {
+            var selectAll = wrapper.find('.select-all-checkbox');
+            var rowCheckboxes = wrapper.find('.row-checkbox');
 
-// Select all checkbox
-$('#selectAll').click(function () {
-$('input[type="checkbox"]').prop('checked', $(this).prop('checked'));
-});
+            if (!selectAll.length) {
+                return;
+            }
 
+            selectAll.on('change', function () {
+                var checked = $(this).prop('checked');
+                rowCheckboxes.prop('checked', checked).trigger('change');
+            });
 
-$(document).ready(function() {
-// Event listener for edit button
-$('.edit').click(function() {
-    // Get the user ID from the data-id attribute
-    var userId = $(this).data('id');
-    // Set the value of the hidden input field
-    $('#userId').val(userId);
-});
-});
+            rowCheckboxes.on('change', function () {
+                if (!$(this).prop('checked')) {
+                    selectAll.prop('checked', false);
+                    return;
+                }
 
-$(document).ready(function() {
-// Event listener for edit button
-$('.delete').click(function() {
-    // Get the user ID from the data-id attribute
-    var user = $(this).data('id');
-    console.log('User ID:', user); // Log user ID for debugging
+                var allChecked = rowCheckboxes.length === rowCheckboxes.filter(':checked').length;
+                selectAll.prop('checked', allChecked);
+            });
+        }
 
-    // Set the value of the hidden input field
-    $('#user').val(user);
-});
-});
+        $('.table-wrapper').each(function () {
+            initCheckboxGroup($(this));
+        });
 
+        function populateFields(modal, mapping) {
+            Object.keys(mapping).forEach(function (selector) {
+                var value = mapping[selector];
+                var field = modal.find(selector);
+                if (!field.length) {
+                    return;
+                }
+
+                if (field.is('select')) {
+                    field.val(value || '');
+                } else {
+                    field.val(value != null ? value : '');
+                }
+            });
+        }
+
+        $('#editUserModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            if (!button.length) {
+                return;
+            }
+
+            var modal = $(this);
+            populateFields(modal, {
+                '#edit-user-id': button.data('id'),
+                '#edit-user-name': button.data('name'),
+                '#edit-user-email': button.data('email'),
+                '#edit-user-role': button.data('role-id')
+            });
+            modal.find('#edit-user-password, #edit-user-password-confirmation').val('');
+        });
+
+        $('#deleteUserModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            if (!button.length) {
+                return;
+            }
+            var modal = $(this);
+            modal.find('#delete-user-id').val(button.data('id'));
+            var name = button.data('name');
+            modal.find('#delete-user-message').text('Are you sure you want to delete ' + (name || 'this user') + '?');
+        });
+
+        $('#editCourseModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            if (!button.length) {
+                return;
+            }
+            var modal = $(this);
+            populateFields(modal, {
+                '#edit-course-id': button.data('id'),
+                '#teacher-edit-course-id': button.data('id'),
+                '#edit-course-name': button.data('name'),
+                '#teacher-edit-course-name': button.data('name'),
+                '#edit-course-credit-hours': button.data('credit-hours'),
+                '#teacher-edit-course-credit-hours': button.data('credit-hours'),
+                '#edit-course-fee': button.data('fee'),
+                '#teacher-edit-course-fee': button.data('fee')
+            });
+        });
+
+        $('#deleteCourseModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            if (!button.length) {
+                return;
+            }
+            var modal = $(this);
+            var courseId = button.data('id');
+            var courseName = button.data('name');
+            modal.find('#delete-course-id, #teacher-delete-course-id').val(courseId);
+            modal.find('#delete-course-message, #teacher-delete-course-message')
+                .text('Are you sure you want to delete ' + (courseName || 'this course') + '?');
+        });
+
+        $('#editStudentModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            if (!button.length) {
+                return;
+            }
+            var modal = $(this);
+            populateFields(modal, {
+                '#edit-student-id': button.data('id'),
+                '#teacher-edit-student-id': button.data('id'),
+                '#edit-student-name': button.data('name'),
+                '#teacher-edit-student-name': button.data('name'),
+                '#edit-student-sex': button.data('sex'),
+                '#teacher-edit-student-sex': button.data('sex'),
+                '#edit-student-phone': button.data('phone'),
+                '#teacher-edit-student-phone': button.data('phone'),
+                '#edit-student-address': button.data('address'),
+                '#teacher-edit-student-address': button.data('address'),
+                '#edit-student-course': button.data('course-id'),
+                '#teacher-edit-student-course': button.data('course-id'),
+                '#edit-student-fee': button.data('fee'),
+                '#teacher-edit-student-fee': button.data('fee')
+            });
+        });
+
+        $('#deleteStudentModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            if (!button.length) {
+                return;
+            }
+            var modal = $(this);
+            var studentId = button.data('id');
+            var studentName = button.data('name');
+            modal.find('#delete-student-id, #teacher-delete-student-id').val(studentId);
+            modal.find('#delete-student-message, #teacher-delete-student-message')
+                .text('Are you sure you want to delete ' + (studentName || 'this student') + '?');
+        });
+
+        function bindBulkDelete(buttonSelector, checkboxSelector, modalSelector, inputsSelector, messageSelector) {
+            $(document).on('click', buttonSelector, function (e) {
+                e.preventDefault();
+                var ids = $(checkboxSelector + ':checked').map(function () {
+                    return $(this).val();
+                }).get();
+
+                if (!ids.length) {
+                    alert('Please select at least one record.');
+                    return;
+                }
+
+                var modal = $(modalSelector);
+                var container = modal.find(inputsSelector).empty();
+                ids.forEach(function (id) {
+                    $('<input>', { type: 'hidden', name: 'selected_ids[]', value: id }).appendTo(container);
+                });
+
+                if (messageSelector) {
+                    var message = 'You are about to delete ' + ids.length + ' ' + (ids.length === 1 ? 'record' : 'records') + '.';
+                    modal.find(messageSelector).text(message);
+                }
+
+                modal.modal('show');
+            });
+        }
+
+        bindBulkDelete('#bulkDeleteUsersButton', '.user-row-checkbox', '#bulkDeleteUsersModal',
+            '#bulk-delete-users-inputs', '#bulk-delete-users-message');
+        bindBulkDelete('#bulkDeleteCoursesButton', '.course-row-checkbox', '#bulkDeleteCoursesModal',
+            '#bulk-delete-courses-inputs', '#bulk-delete-courses-message');
+        bindBulkDelete('#bulkDeleteStudentsButton', '.student-row-checkbox', '#bulkDeleteStudentsModal',
+            '#bulk-delete-students-inputs', '#bulk-delete-students-message');
+        bindBulkDelete('#teacherBulkDeleteCoursesButton', '.teacher-course-row-checkbox', '#teacherBulkDeleteCoursesModal',
+            '#teacher-bulk-delete-courses-inputs', '#teacher-bulk-delete-courses-message');
+        bindBulkDelete('#teacherBulkDeleteStudentsButton', '.teacher-student-row-checkbox', '#teacherBulkDeleteStudentsModal',
+            '#teacher-bulk-delete-students-inputs', '#teacher-bulk-delete-students-message');
+
+        var searchInput = $('.xp-searchbar input[type="search"]');
+        var searchForm = $('.xp-searchbar form');
+
+        function applySearchFilter() {
+            var query = searchInput.val().toLowerCase();
+            $('.table-wrapper:visible table tbody tr').each(function () {
+                var row = $(this);
+                if (!row.children('td').length) {
+                    return;
+                }
+                var text = row.text().toLowerCase();
+                var matches = query === '' || text.indexOf(query) !== -1;
+                row.toggle(matches);
+            });
+        }
+
+        searchInput.on('input', applySearchFilter);
+        searchForm.on('submit', function (event) {
+            event.preventDefault();
+            applySearchFilter();
+        });
+    });
 </script>
+
+@if (session('show_modal'))
+    <script>
+        $(function () {
+            var target = '#{{ session('show_modal') }}';
+            if ($(target).length) {
+                $(target).modal('show');
+            }
+        });
+    </script>
+@endif

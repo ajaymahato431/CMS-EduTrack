@@ -34,6 +34,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'isAdmin']], function
     Route::get('/dashboard', [AdminController::class, 'dashboard']);
 
     Route::get('/users', [AdminController::class, 'users'])->name('AdminUsers');
+    Route::post('/addUser', [AdminController::class, 'addUser'])->name('addUser');
     Route::get('/manage-role', [AdminController::class, 'manageRole'])->name('manageRole');
     Route::post('/update-role', [AdminController::class, 'updateRole'])->name('updateRole');
     Route::get('/course', [AdminController::class, 'course'])->name('Course');
@@ -52,6 +53,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'isAdmin']], function
     Route::post('/addStudent', [AdminController::class, 'addStudent'])->name('addStudent');
     Route::post('/editStudent', [AdminController::class, 'editStudent'])->name('editStudent');
     Route::post('/deleteStudent', [AdminController::class, 'deleteStudent'])->name('deleteStudent');
+    Route::post('/users/bulk-delete', [AdminController::class, 'bulkDeleteUsers'])->name('bulkDeleteUsers');
+    Route::post('/courses/bulk-delete', [AdminController::class, 'bulkDeleteCourses'])->name('bulkDeleteCourses');
+    Route::post('/students/bulk-delete', [AdminController::class, 'bulkDeleteStudents'])->name('bulkDeleteStudents');
 
     Route::post('/updateName', [AdminController::class, 'updateName'])->name('updateName');
     Route::post('/updatePassword', [AdminController::class, 'updatePassword'])->name('updatePassword');
@@ -72,6 +76,8 @@ Route::group(['prefix' => 'teacher', 'middleware' => ['web', 'isTeacher']], func
     Route::post('/addStudent', [TeacherController::class, 'addStudent'])->name('taddStudent');
     Route::post('/editStudent', [TeacherController::class, 'editStudent'])->name('teditStudent');
     Route::post('/deleteStudent', [TeacherController::class, 'deleteStudent'])->name('tdeleteStudent');
+    Route::post('/courses/bulk-delete', [TeacherController::class, 'bulkDeleteCourses'])->name('tbulkDeleteCourses');
+    Route::post('/students/bulk-delete', [TeacherController::class, 'bulkDeleteStudents'])->name('tbulkDeleteStudents');
 
     Route::post('/updateName', [TeacherController::class, 'updateName'])->name('tupdateName');
     Route::post('/updatePassword', [TeacherController::class, 'updatePassword'])->name('tupdatePassword');

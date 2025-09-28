@@ -10,6 +10,8 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
 {
@@ -66,14 +68,48 @@ class AdminController extends Controller
     }
 
     // User Section
+    public function addUser(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|min:2',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|confirmed|min:6',
+            'role_id' => 'required|exists:roles,id',
+        ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator, 'addUser')
+                ->withInput()
+                ->with('show_modal', 'addUserModal');
+        }
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role_id' => $request->role_id,
+        ]);
+
+        return redirect()->back()->with('success', 'User added successfully.');
+    }
+
     public function editUser(Request $request)
     {
-        $request->validate([
-            'userId' => 'required|exists:users,id',
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
             'name' => 'required|string|min:2',
-            'email' => 'required|email|unique:users,email,' . $request->userId,
-            'password' => 'nullable|string|min:6',
+            'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($request->user_id)],
+            'password' => 'nullable|string|confirmed|min:6',
+            'role_id' => 'nullable|exists:roles,id',
         ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator, 'editUser')
+                ->withInput()
+                ->with('show_modal', 'editUserModal');
+        }
 
         $updateData = [
             'name' => $request->name,
@@ -84,30 +120,51 @@ class AdminController extends Controller
             $updateData['password'] = Hash::make($request->password);
         }
 
-        User::findOrFail($request->userId)->update($updateData);
+        if ($request->filled('role_id')) {
+            $updateData['role_id'] = $request->role_id;
+        }
+
+        User::findOrFail($request->user_id)->update($updateData);
 
         return redirect()->back()->with('success', 'User updated successfully.');
     }
 
+
     public function deleteUser(Request $request)
     {
-        $request->validate([
-            'user' => 'required|exists:users,id',
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
         ]);
 
-        User::findOrFail($request->user)->delete();
+        if ($validator->fails()) {
+            return back()->withErrors($validator, 'deleteUser');
+        }
+
+        if ((int) $request->user_id === auth()->id()) {
+            return back()->with('error', 'You cannot delete the currently authenticated user.');
+        }
+
+        User::whereKey($request->user_id)->delete();
 
         return redirect()->back()->with('success', 'User deleted successfully.');
     }
 
+
     // Course Section
     public function addCourse(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'course_name' => 'required|string|unique:courses,course_name',
             'credit_hours' => 'required|integer|min:1',
             'fee' => 'required|integer|min:0',
         ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator, 'addCourse')
+                ->withInput()
+                ->with('show_modal', 'addCourseModal');
+        }
 
         Course::create([
             'course_name' => $request->course_name,
@@ -118,16 +175,24 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Course added successfully.');
     }
 
+
     public function editCourse(Request $request)
     {
-        $request->validate([
-            'userId' => 'required|exists:courses,id',
-            'course_name' => 'required|string|unique:courses,course_name,' . $request->userId,
+        $validator = Validator::make($request->all(), [
+            'course_id' => 'required|exists:courses,id',
+            'course_name' => ['required', 'string', Rule::unique('courses', 'course_name')->ignore($request->course_id)],
             'credit_hours' => 'required|integer|min:1',
             'fee' => 'required|integer|min:0',
         ]);
 
-        Course::findOrFail($request->userId)->update([
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator, 'editCourse')
+                ->withInput()
+                ->with('show_modal', 'editCourseModal');
+        }
+
+        Course::findOrFail($request->course_id)->update([
             'course_name' => $request->course_name,
             'credit_hours' => $request->credit_hours,
             'fee' => $request->fee,
@@ -136,21 +201,27 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Course updated successfully.');
     }
 
+
     public function deleteCourse(Request $request)
     {
-        $request->validate([
-            'user' => 'required|exists:courses,id',
+        $validator = Validator::make($request->all(), [
+            'course_id' => 'required|exists:courses,id',
         ]);
 
-        Course::findOrFail($request->user)->delete();
+        if ($validator->fails()) {
+            return back()->withErrors($validator, 'deleteCourse');
+        }
+
+        Course::whereKey($request->course_id)->delete();
 
         return redirect()->back()->with('success', 'Course deleted successfully.');
     }
 
+
     // Student Section
     public function addStudent(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:2',
             'sex' => 'required|in:male,female,other',
             'phone' => 'required|string|max:15',
@@ -158,6 +229,13 @@ class AdminController extends Controller
             'course_id' => 'required|exists:courses,id',
             'paid_fee' => 'required|integer|min:0',
         ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator, 'addStudent')
+                ->withInput()
+                ->with('show_modal', 'addStudentModal');
+        }
 
         Student::create($request->only([
             'name',
@@ -171,10 +249,11 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Student added successfully.');
     }
 
+
     public function editStudent(Request $request)
     {
-        $request->validate([
-            'userId' => 'required|exists:students,id',
+        $validator = Validator::make($request->all(), [
+            'student_id' => 'required|exists:students,id',
             'name' => 'required|string|min:2',
             'sex' => 'required|in:male,female,other',
             'phone' => 'required|string|max:15',
@@ -183,7 +262,14 @@ class AdminController extends Controller
             'paid_fee' => 'required|integer|min:0',
         ]);
 
-        Student::findOrFail($request->userId)->update($request->only([
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator, 'editStudent')
+                ->withInput()
+                ->with('show_modal', 'editStudentModal');
+        }
+
+        Student::findOrFail($request->student_id)->update($request->only([
             'name',
             'sex',
             'phone',
@@ -195,16 +281,22 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Student updated successfully.');
     }
 
+
     public function deleteStudent(Request $request)
     {
-        $request->validate([
-            'user' => 'required|exists:students,id',
+        $validator = Validator::make($request->all(), [
+            'student_id' => 'required|exists:students,id',
         ]);
 
-        Student::findOrFail($request->user)->delete();
+        if ($validator->fails()) {
+            return back()->withErrors($validator, 'deleteStudent');
+        }
+
+        Student::whereKey($request->student_id)->delete();
 
         return redirect()->back()->with('success', 'Student deleted successfully.');
     }
+
 
     // Update Profile Section
     public function updateName(Request $request)
@@ -263,4 +355,78 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Profile updated successfully.');
     }
+
+    public function bulkDeleteUsers(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'selected_ids' => 'required|array',
+            'selected_ids.*' => 'integer|exists:users,id',
+        ], [
+            'selected_ids.required' => 'Select at least one user to delete.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator, 'bulkUsers')
+                ->withInput()
+                ->with('show_modal', 'bulkDeleteUsersModal');
+        }
+
+        $ids = collect($request->selected_ids)
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id !== auth()->id())
+            ->values()
+            ->all();
+
+        if (empty($ids)) {
+            return back()->with('error', 'No valid users selected for deletion.');
+        }
+
+        User::whereIn('id', $ids)->delete();
+
+        return redirect()->back()->with('success', 'Selected users deleted successfully.');
+    }
+
+    public function bulkDeleteCourses(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'selected_ids' => 'required|array',
+            'selected_ids.*' => 'integer|exists:courses,id',
+        ], [
+            'selected_ids.required' => 'Select at least one course to delete.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator, 'bulkCourses')
+                ->withInput()
+                ->with('show_modal', 'bulkDeleteCoursesModal');
+        }
+
+        Course::whereIn('id', $request->selected_ids)->delete();
+
+        return redirect()->back()->with('success', 'Selected courses deleted successfully.');
+    }
+
+    public function bulkDeleteStudents(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'selected_ids' => 'required|array',
+            'selected_ids.*' => 'integer|exists:students,id',
+        ], [
+            'selected_ids.required' => 'Select at least one student to delete.',
+        ]);
+
+        if ($validator->fails()) {
+            return back()
+                ->withErrors($validator, 'bulkStudents')
+                ->withInput()
+                ->with('show_modal', 'bulkDeleteStudentsModal');
+        }
+
+        Student::whereIn('id', $request->selected_ids)->delete();
+
+        return redirect()->back()->with('success', 'Selected students deleted successfully.');
+    }
+
 }
