@@ -1,18 +1,17 @@
 <footer class="footer">
     <div class="container-fluid">
-       <div class="footer-in">
-          <p class="mb-0">&copy 2024 EduTrack . <a href="https://www.ajaymahato9988.com.np/" style="text-decoration: none; color:white; font-weight: bold;">Ajay Mahato</a> . All Rights Reserved.</p>
-       </div>
+        <div class="footer-in">
+            <p class="mb-0">&copy {{ now()->year }} EduTrack . <a href="https://www.ajaymahato9988.com.np/"
+                    style="text-decoration: none; color:white; font-weight: bold;">Ajay Mahato</a> . All Rights
+                Reserved.</p>
+        </div>
     </div>
- </footer>
-          
- 
+</footer>
+
+
 </div>
 
 </div>
-
-
-
 
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="{{asset('js/jquery-3.3.1.slim.min.js')}}"></script>
@@ -20,11 +19,8 @@
 <script src="{{asset('js/bootstrap.min.js')}}"></script>
 <script src="{{asset('js/jquery-3.3.1.min.js')}}"></script>
 
-
-
-
 <script>
-$(document).ready(function(){
+    $(document).ready(function(){
 // Toggle sidebar and content area
 $(".xp-menubar").on('click',function(){
 $("#sidebar").toggleClass('active');

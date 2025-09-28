@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
     <title>CMS - EduTrack</title>
 
-    <link rel="icon" type="image/x-icon" href="/storage/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="{{ asset('img/favicon.ico') }}">
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
@@ -23,7 +23,7 @@
 
 
     <!--google material icon-->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Icons"rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
 
 </head>
 
@@ -38,9 +38,9 @@
         <!-------sidebar--design------------>
 
         @if (Auth::user()->role_id === 1)
-            @include('layout.sidebar')
+        @include('layout.sidebar')
         @else
-            @include('layout.teacher-sidebar')
+        @include('layout.teacher-sidebar')
         @endif
 
         <div id="content">
@@ -100,7 +100,7 @@
                     <div class="text-center xp-breadcrumbbar">
                         <h4 class="page-title">Dashboard</h4>
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="https://ajaymahato9988.com.np">EduTrack</a></li>
+                            <li class="breadcrumb-item"><a href="#">EduTrack</a></li>
                             <li class="breadcrumb-item active" aria-curent="page">Dashboard</li>
                         </ol>
                     </div>
