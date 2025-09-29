@@ -10,6 +10,7 @@ use App\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -301,10 +302,16 @@ class AdminController extends Controller
     // Update Profile Section
     public function updateName(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'userId' => 'required|exists:users,id',
             'name' => 'required|string|min:2',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator, 'updateName') // 👈 Use a named error bag
+                ->withInput();
+        }
 
         User::findOrFail($request->userId)->update([
             'name' => $request->name,
@@ -315,10 +322,16 @@ class AdminController extends Controller
 
     public function updatePassword(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'userId' => 'required|exists:users,id',
             'password' => 'required|string|confirmed|min:6',
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator, 'updatePassword') // 👈 Use a named error bag
+                ->withInput();
+        }
 
         User::findOrFail($request->userId)->update([
             'password' => Hash::make($request->password),
@@ -329,28 +342,29 @@ class AdminController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'userId' => 'required|exists:users,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048', // 👈 Changed to 'required' for clarity
         ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator, 'updateProfile') // 👈 Use a named error bag
+                ->withInput();
+        }
 
         $user = User::findOrFail($request->userId);
 
         if ($request->hasFile('image')) {
-            // Delete existing image if it exists
-            if ($user->profile_photo_path) {
-                $existingImagePath = storage_path('app/public/' . $user->profile_photo_path);
-                if (file_exists($existingImagePath)) {
-                    unlink($existingImagePath);
-                }
+            // Delete existing image if it's not the default one
+            if ($user->profile_photo_path && $user->profile_photo_path !== 'profile-images/default.jpg') {
+                Storage::delete('public/' . $user->profile_photo_path);
             }
 
-            // Store new image
-            $file = $request->file('image');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('public', $filename);
+            // Store new image in 'storage/app/public/profile-images'
+            $path = $request->file('image')->store('profile-images', 'public');
 
-            $user->update(['profile_photo_path' => $filename]);
+            $user->update(['profile_photo_path' => $path]);
         }
 
         return redirect()->back()->with('success', 'Profile updated successfully.');
@@ -373,8 +387,8 @@ class AdminController extends Controller
         }
 
         $ids = collect($request->selected_ids)
-            ->map(fn ($id) => (int) $id)
-            ->filter(fn ($id) => $id !== auth()->id())
+            ->map(fn($id) => (int) $id)
+            ->filter(fn($id) => $id !== auth()->id())
             ->values()
             ->all();
 
@@ -428,5 +442,4 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Selected students deleted successfully.');
     }
-
 }

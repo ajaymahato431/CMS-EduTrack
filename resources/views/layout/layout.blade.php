@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
@@ -10,32 +9,24 @@
 
     <link rel="icon" type="image/x-icon" href="{{ asset('img/favicon.ico') }}">
 
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
-    <!----css3---->
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 
 
-    <!--google fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 
-    <!--google material icon-->
     <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
 
 </head>
 
 <body>
 
-
-
     <div class="wrapper">
 
         <div class="body-overlay"></div>
-
-        <!-------sidebar--design------------>
 
         @if (Auth::user()->role_id === 1)
         @include('layout.sidebar')
@@ -108,17 +99,40 @@
 
                 </div>
             </div>
-            <!------top-navbar-end----------->
-
             <div class="body-area" style="min-height: 70vh;
       padding: 20px">
                 @yield('content')
             </div>
 
 
-            <!----footer-design------------->
-
             @include('layout.footer');
+
+        </div>
+
+    </div>
+
+    <script src="{{ asset('js/jquery-3.3.1.slim.min.js') }}"></script>
+    <script src="{{ asset('js/popper.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+
+    {{-- Sidebar Toggle Script --}}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(".xp-menubar").on('click', function () {
+                $("#sidebar").toggleClass('active');
+                $("#content").toggleClass('active');
+            });
+
+            $('.xp-menubar,.body-overlay').on('click', function () {
+                $("#sidebar,.body-overlay").toggleClass('show-nav');
+            });
+
+        });
+    </script>
+
+    {{-- This is where scripts from other pages will be injected --}}
+    @stack('scripts')
+
 
 </body>
 
