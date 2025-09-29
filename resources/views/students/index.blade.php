@@ -16,19 +16,415 @@
     <link rel="stylesheet" href="{{ asset('css/student/custom.css') }}">
 
     <style>
+        :root {
+            --edu-primary: #0c5adb;
+            --edu-secondary: #051937;
+            --edu-accent: #fbbf24;
+            --edu-muted: #f5f7fb;
+            --edu-dark: #1f2937;
+        }
+
         * {
             scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            color: var(--edu-dark);
+            background: var(--edu-muted);
+        }
+
+        .probootstrap-header-top {
+            background: linear-gradient(90deg, rgba(5, 25, 55, 0.95) 0%, rgba(12, 90, 219, 0.95) 100%);
+            color: #f9fafb;
+            font-size: 0.95rem;
+            padding: 0.65rem 0;
+        }
+
+        .probootstrap-header-top a {
+            color: inherit;
+            opacity: 0.9;
+            transition: opacity 0.2s ease;
+        }
+
+        .probootstrap-header-top a:hover,
+        .probootstrap-header-top a:focus {
+            opacity: 1;
+        }
+
+        .probootstrap-top-quick-contact-info {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem 1.5rem;
+        }
+
+        .probootstrap-top-quick-contact-info span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .probootstrap-top-social ul {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .probootstrap-top-social li {
+            list-style: none;
+        }
+
+        .probootstrap-navbar {
+            border: 0;
+            box-shadow: 0 12px 30px -20px rgba(15, 23, 42, 0.45);
+            min-height: 70px;
+            transition: box-shadow 0.3s ease;
+            background: #fff;
+        }
+
+        .probootstrap-navbar .navbar-brand img {
+            width: 64px;
+            transition: transform 0.3s ease;
+        }
+
+        .probootstrap-navbar .navbar-brand img:hover {
+            transform: translateY(-3px);
+        }
+
+        .flexslider.hero-slider {
+            position: relative;
+        }
+
+        .flexslider.hero-slider .slides>li {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .flexslider.hero-slider .slides>li::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(5, 25, 55, 0.8) 0%, rgba(12, 90, 219, 0.6) 100%);
+        }
+
+        .flexslider.hero-slider .flex-direction-nav {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            pointer-events: none;
+            padding: 0 1.5rem;
+            z-index: 3;
+        }
+
+        .flexslider.hero-slider .flex-direction-nav li {
+            list-style: none;
+            pointer-events: none;
+        }
+
+        .flexslider.hero-slider .flex-direction-nav a {
+            pointer-events: auto;
+            width: 52px;
+            height: 52px;
+            border-radius: 9999px;
+            background: rgba(4, 16, 35, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-indent: -9999px;
+            overflow: hidden;
+            transition: transform 0.2s ease, background 0.2s ease, border 0.2s ease;
+        }
+
+        .flexslider.hero-slider .flex-direction-nav a::before {
+            content: '';
+            width: 18px;
+            height: 18px;
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
+            display: block;
+        }
+
+        .flexslider.hero-slider .flex-direction-nav .flex-prev::before {
+            background-image: url('{{ asset(' svg/arrow-left.svg') }}');
+        }
+
+        .flexslider.hero-slider .flex-direction-nav .flex-next::before {
+            background-image: url('{{ asset(' svg/arrow-right.svg') }}');
+        }
+
+        .flexslider.hero-slider .flex-direction-nav a:hover,
+        .flexslider.hero-slider .flex-direction-nav a:focus {
+            transform: translateY(-2px);
+            background: rgba(12, 90, 219, 0.85);
+            border-color: rgba(12, 90, 219, 0.95);
+        }
+
+        .flexslider.hero-slider .flex-direction-nav a:hover::before,
+        .flexslider.hero-slider .flex-direction-nav a:focus::before {
+            filter: brightness(0) invert(1);
+        }
+
+        .flexslider.hero-slider .flex-direction-nav .flex-disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+
+        .probootstrap-slider-text {
+            position: relative;
+            z-index: 2;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+
+        .probootstrap-heading {
+            font-size: clamp(2.25rem, 4vw, 3.75rem);
+            line-height: 1.15;
+            font-weight: 700;
+            color: #fff;
+            text-transform: none;
+        }
+
+        .probootstrap-section {
+            padding: clamp(3rem, 6vw, 7rem) 0;
+        }
+
+        .probootstrap-flex-block {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .probootstrap-flex-block .probootstrap-text,
+        .probootstrap-flex-block .probootstrap-image {
+            flex: 1 1 320px;
+        }
+
+        .probootstrap-flex-block .probootstrap-image {
+            min-height: 320px;
+            border-radius: 22px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 35px 80px -45px rgba(12, 90, 219, 0.65);
+        }
+
+        .probootstrap-flex-block .btn {
+            border-radius: 9999px;
+            padding: 0.75rem 1.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .probootstrap-service-2,
+        .probootstrap-teacher,
+        .probootstrap-testimony-wrap,
+        .probootstrap-counter-wrap {
+            background: #fff;
+            border-radius: 20px;
+            padding: 2.25rem 2rem;
+            box-shadow: 0 32px 70px -40px rgba(15, 23, 42, 0.45);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .probootstrap-service-2:hover,
+        .probootstrap-teacher:hover,
+        .probootstrap-testimony-wrap:hover,
+        .probootstrap-counter-wrap:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 40px 95px -45px rgba(12, 90, 219, 0.45);
+        }
+
+        .probootstrap-service-2 h3 {
+            font-weight: 700;
+            color: var(--edu-secondary);
+        }
+
+        .probootstrap-counter {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--edu-primary);
+        }
+
+        .probootstrap-counter-label {
+            font-size: 0.95rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .probootstrap-teacher img,
+        .probootstrap-testimony-wrap figure img {
+            border-radius: 16px;
+            object-fit: cover;
+            width: 100%;
+            height: auto;
+        }
+
+        #testimonial .quote {
+            color: #0f172a;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+
+        #testimonial {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            color: #0f172a;
+            overflow: hidden;
+        }
+
+        #testimonial::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        #testimonial>.container,
+        #testimonial .owl-carousel {
+            position: relative;
+            z-index: 1;
+        }
+
+        .probootstrap-testimony-wrap blockquote.quote {
+            position: relative;
+            padding: 0 1.75rem;
+            margin-top: 1.5rem;
+            font-style: italic;
+            color: var(--edu-secondary);
+        }
+
+        .probootstrap-testimony-wrap blockquote.quote::before {
+            content: '"';
+            position: absolute;
+            left: 0;
+            top: -0.75rem;
+            font-size: 3rem;
+            color: var(--edu-accent);
+            opacity: 0.35;
+        }
+
+        footer.probootstrap-footer {
+            color: #f9fafb;
+        }
+
+        footer.probootstrap-footer a {
+            color: inherit;
+        }
+
+
+        .btn {
+            border-radius: 9999px;
+            padding: 0.75rem 1.75rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn.btn-primary {
+            background: var(--edu-primary);
+            border-color: var(--edu-primary);
+            box-shadow: 0 18px 36px -20px rgba(12, 90, 219, 0.6);
+        }
+
+        .btn.btn-primary:hover,
+        .btn.btn-primary:focus {
+            background: #0940a1;
+            border-color: #0940a1;
+            transform: translateY(-2px);
+            box-shadow: 0 22px 40px -22px rgba(5, 25, 55, 0.45);
+        }
+
+        @media (max-width: 992px) {
+            .probootstrap-top-quick-contact-info {
+                justify-content: center;
+            }
+
+            .probootstrap-top-social ul {
+                justify-content: center;
+            }
+
+            .probootstrap-navbar .navbar-brand img {
+                width: 56px;
+            }
+
+            .probootstrap-service-2,
+            .probootstrap-teacher,
+            .probootstrap-testimony-wrap,
+            .probootstrap-counter-wrap {
+                margin-bottom: 1.75rem;
+            }
+
+            .probootstrap-slider-text {
+                text-align: center;
+            }
+
+            .probootstrap-navbar .navbar-collapse {
+                background: #fff;
+                border-radius: 16px;
+                padding: 1rem 1.25rem;
+                box-shadow: 0 35px 70px -40px rgba(15, 23, 42, 0.55);
+            }
+
+            .probootstrap-navbar .navbar-nav>li>a {
+                color: var(--edu-secondary);
+            }
+
+            .probootstrap-navbar .navbar-nav>li>a:hover,
+            .probootstrap-navbar .navbar-nav>li>a:focus {
+                color: var(--edu-primary);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .probootstrap-header-top {
+                text-align: center;
+            }
+
+            .probootstrap-top-quick-contact-info {
+                gap: 0.5rem 1rem;
+            }
+
+            .probootstrap-navbar {
+                box-shadow: 0 10px 30px -18px rgba(15, 23, 42, 0.35);
+            }
+
+            .probootstrap-flex-block {
+                flex-direction: column-reverse;
+                text-align: center;
+            }
+
+            .probootstrap-slider-text {
+                padding: 0 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .probootstrap-top-quick-contact-info span {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="probootstrap-search" id="probootstrap-search">
-        <a href="#" class="probootstrap-close js-probootstrap-close"><img src="{{ asset('svg/cross.svg') }}"></a>
-        <form action="#">
-            <input type="search" name="s" id="search" placeholder="Search a keyword and hit enter...">
-        </form>
-    </div>
 
     <div class="probootstrap-page-wrapper">
         <!-- Fixed navbar -->
@@ -93,9 +489,9 @@
             </div>
         </nav>
 
-        <section class="flexslider" id="home">
+        <section class="flexslider hero-slider" id="home">
             <ul class="slides">
-                <li style="background-image: url(storage/slider_1.jpg)" class="overlay">
+                <li style="background-image: url('{{ asset('img/slider_1.jpg') }}')" class="overlay">
                     <div class="container">
                         <div class="row">
                             <div class="col-md-8 col-md-offset-2">
@@ -107,7 +503,7 @@
                         </div>
                     </div>
                 </li>
-                <li style="background-image: url(storage/slider_2.jpg)" class="overlay">
+                <li style="background-image: url('{{ asset('img/slider_2.jpg') }}')" class="overlay">
                     <div class="container">
                         <div class="row">
                             <div class="col-md-8 col-md-offset-2">
@@ -119,7 +515,7 @@
                     </div>
 
                 </li>
-                <li style="background-image: url(storage/slider_3.jpg)" class="overlay">
+                <li style="background-image: url('{{ asset('img/slider_3.jpg') }}')" class="overlay">
                     <div class="container">
                         <div class="row">
                             <div class="col-md-8 col-md-offset-2">
@@ -159,7 +555,7 @@
                                 <p><a href="#" class="btn btn-primary">Learn More</a></p>
                             </div>
                             <div class="probootstrap-image probootstrap-animate"
-                                style="background-image: url(storage/balkumari.jpg);">
+                                style="background-image: url('{{ asset('img/balkumari.jpg') }}');">
                                 <a href="https://www.youtube.com/watch?v=YJ4D_mJbp-Y" class="btn-video popup-vimeo"
                                     style="display: flex;
                   align-content:center; justify-content:center;"><img src="{{ asset('svg/play-button.svg') }}"
@@ -373,7 +769,7 @@
         </section>
 
         <section class="probootstrap-section probootstrap-bg probootstrap-section-colored probootstrap-testimonial"
-            style="background-image: url(storage/testimonial.jpg);" id="testimonial">
+            style="background-image: url('{{ asset('img/testimonial.jpg') }}');" id="testimonial">
             <div class="container">
                 <div class="row">
                     <div class="text-center col-md-6 col-md-offset-3 section-heading probootstrap-animate">
@@ -389,7 +785,8 @@
 
                                 <div class="text-center probootstrap-testimony-wrap">
                                     <figure>
-                                        <img src="storage/person_1.jpg" alt="Free Bootstrap Template by uicookies.com">
+                                        <img src="{{ asset('img/person_1.jpg') }}"
+                                            alt="Free Bootstrap Template by uicookies.com">
                                     </figure>
                                     <blockquote class="quote">&ldquo;EduTrack has revolutionized the way I learn. The
                                         courses are engaging, the instructors are knowledgeable, and the support team is
@@ -401,7 +798,8 @@
                             <div class="item">
                                 <div class="text-center probootstrap-testimony-wrap">
                                     <figure>
-                                        <img src="storage/person_2.jpg" alt="Free Bootstrap Template by uicookies.com">
+                                        <img src="{{ asset('img/person_2.jpg') }}"
+                                            alt="Free Bootstrap Template by uicookies.com">
                                     </figure>
                                     <blockquote class="quote">&ldquo;I've been using EduTrack for a year now, and I
                                         couldn't be happier with my progress. The courses are well-structured, easy to
@@ -413,7 +811,8 @@
                             <div class="item">
                                 <div class="text-center probootstrap-testimony-wrap">
                                     <figure>
-                                        <img src="storage/person_3.jpg" alt="Free Bootstrap Template by uicookies.com">
+                                        <img src="{{ asset('img/person_3.jpg') }}"
+                                            alt="Free Bootstrap Template by uicookies.com">
                                     </figure>
                                     <blockquote class="quote">&ldquo;EduTrack has exceeded my expectations. The
                                         instructors are passionate about teaching, the platform is user-friendly, and
@@ -577,7 +976,8 @@
                 <div class="container">
                     <div class="row">
                         <div class="text-left col-md-8">
-                            <p>&copy; 2024 <a href="https://notedinsights.com/">EduTrack</a>. All Rights Reserved.
+                            <p>&copy; {{ now()->year }} <a href="https://notedinsights.com/">EduTrack</a>. All Rights
+                                Reserved.
                                 Designed &amp; Developed by <a href="https://ajaymahato9988.com.np/">Ajay Mahato</a>
                             </p>
                         </div>
