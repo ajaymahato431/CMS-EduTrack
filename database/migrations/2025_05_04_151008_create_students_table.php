@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('sex');
-            $table->integer('phone');
+            $table->string('phone');
             $table->string('address')->nullable();
             $table->foreignId('course_id')
                 ->constrained('courses')

@@ -28,7 +28,7 @@
 
         <div class="body-overlay"></div>
 
-        @if (Auth::user()->role_id === 1)
+        @if (Auth::user()->role_id == 1)
         @include('layout.sidebar')
         @else
         @include('layout.teacher-sidebar')
