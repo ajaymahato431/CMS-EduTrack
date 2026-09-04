@@ -21,12 +21,12 @@ use Illuminate\Support\Facades\Response;
 
 
 // Route::get('/register', [AuthController::class, 'loadRegister']);
-Route::post('/register', [AuthController::class, 'register'])->name('register');
+Route::post('/register', [AuthController::class, 'register'])->name('register')->middleware('throttle:10,1');
 // Route::get('/login', function () {
 //     return redirect('/');
 // });
 Route::get('/', [AuthController::class, 'loadLogin']);
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login')->middleware('throttle:5,1');
 Route::get('/logout', [AuthController::class, 'logout']);
 
 // ********** Admin Routes *********
@@ -37,8 +37,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'isAdmin']], function
     Route::post('/addUser', [AdminController::class, 'addUser'])->name('addUser');
     Route::get('/manage-role', [AdminController::class, 'manageRole'])->name('manageRole');
     Route::post('/update-role', [AdminController::class, 'updateRole'])->name('updateRole');
-    Route::get('/course', [AdminController::class, 'course'])->name('Course');
-    Route::get('/students', [AdminController::class, 'students'])->name('Students');
+    Route::get('/course', [AdminController::class, 'course'])->name('admin.course');
+    Route::get('/students', [AdminController::class, 'students'])->name('admin.students');
 
     Route::post('/editUser', [AdminController::class, 'editUser'])->name('editUser');
     Route::post('/deleteUser', [AdminController::class, 'deleteUser'])->name('deleteUser');
@@ -65,8 +65,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'isAdmin']], function
 // ********** Teacher Routes *********
 Route::group(['prefix' => 'teacher', 'middleware' => ['web', 'isTeacher']], function () {
     Route::get('/dashboard', [TeacherController::class, 'dashboard']);
-    Route::get('/course', [TeacherController::class, 'course'])->name('Course');
-    Route::get('/students', [TeacherController::class, 'students'])->name('Students');
+    Route::get('/course', [TeacherController::class, 'course'])->name('teacher.course');
+    Route::get('/students', [TeacherController::class, 'students'])->name('teacher.students');
 
     Route::post('/addCourse', [TeacherController::class, 'addCourse'])->name('taddCourse');
     Route::post('/editCourse', [TeacherController::class, 'editCourse'])->name('teditCourse');
@@ -96,19 +96,39 @@ Route::group(['middleware' => ['web', 'isStudent']], function () {
 });
 
 
-// Route to Storage folder
+// Secure Route to Storage folder (with path traversal protection)
 Route::get('storage/{filename}', function ($filename) {
-    $path = storage_path('public/' . $filename);
-
-    if (!File::exists($path)) {
+    if (str_contains($filename, '..') || str_starts_with($filename, '/') || str_starts_with($filename, '\\')) {
         abort(404);
     }
 
-    $file = File::get($path);
-    $type = File::mimeType($path);
+    $baseDirs = [
+        storage_path('app/public'),
+        storage_path('public'),
+    ];
+
+    $resolvedPath = null;
+    foreach ($baseDirs as $baseDir) {
+        $candidate = $baseDir . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $filename);
+        $realCandidate = realpath($candidate);
+        $realBaseDir = realpath($baseDir);
+
+        if ($realCandidate && $realBaseDir && str_starts_with($realCandidate, $realBaseDir) && File::exists($realCandidate)) {
+            $resolvedPath = $realCandidate;
+            break;
+        }
+    }
+
+    if (!$resolvedPath || !File::isFile($resolvedPath)) {
+        abort(404);
+    }
+
+    $file = File::get($resolvedPath);
+    $type = File::mimeType($resolvedPath) ?: 'application/octet-stream';
 
     $response = Response::make($file, 200);
-    $response->header("Content-Type", $type);
+    $response->header('Content-Type', $type);
 
     return $response;
-});
+})->where('filename', '.*');
+

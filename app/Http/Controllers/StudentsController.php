@@ -31,37 +31,37 @@ class StudentsController extends Controller
 
     public function enrollStudent(Request $request)
     {
-       // $request->validate([
-            //     'name' => 'required|string|min:2',
-            //     'sex' => 'required|in:male,female,other',
-            //     'phone' => 'required|string|max:15',
-            //     'address' => 'required|string',
-            //     'course_id' => 'required|exists:courses,id',
-            //     'paid_fee' => 'required|integer|min:0',
-            // ]);
+        $request->validate([
+            'name' => 'required|string|min:2',
+            'sex' => 'required|in:male,female,other',
+            'phone' => 'required|string|max:15',
+            'address' => 'required|string',
+            'course_id' => 'required|exists:courses,id',
+            'paid_fee' => 'required|integer|min:0',
+        ]);
 
-            Student::create([
-                'name' => $request->input('name'),
-                'sex' => $request->input('sex'),
-                'phone' => $request->input('phone'),
-                'address' => $request->input('address'),
-                'course_id' => $request->input('course_id'),
-                'paid_fee' => $request->input('paid_fee'),
-            ]);
+        Student::create([
+            'name' => $request->input('name'),
+            'sex' => $request->input('sex'),
+            'phone' => $request->input('phone'),
+            'address' => $request->input('address'),
+            'course_id' => $request->input('course_id'),
+            'paid_fee' => $request->input('paid_fee'),
+        ]);
 
-
-            return redirect()->back()->with('success', 'Student enrolled successfully.');
+        return redirect()->back()->with('success', 'Student enrolled successfully.');
     }
 
     // Update Profile Section
     public function updateName(Request $request)
     {
         $request->validate([
-            'userId' => 'required|exists:users,id',
             'name' => 'required|string|min:2',
         ]);
 
-        User::findOrFail($request->userId)->update([
+        /** @var User $user */
+        $user = Auth::user();
+        $user->update([
             'name' => $request->name,
         ]);
 
@@ -71,11 +71,12 @@ class StudentsController extends Controller
     public function updatePassword(Request $request)
     {
         $request->validate([
-            'userId' => 'required|exists:users,id',
             'password' => 'required|string|confirmed|min:6',
         ]);
 
-        User::findOrFail($request->userId)->update([
+        /** @var User $user */
+        $user = Auth::user();
+        $user->update([
             'password' => Hash::make($request->password),
         ]);
 
@@ -85,27 +86,24 @@ class StudentsController extends Controller
     public function updateProfile(Request $request)
     {
         $request->validate([
-            'userId' => 'required|exists:users,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $user = User::findOrFail($request->userId);
+        /** @var User $user */
+        $user = Auth::user();
 
         if ($request->hasFile('image')) {
-            // Delete existing image if it exists
+            // Delete existing image if it exists and is within storage
             if ($user->profile_photo_path) {
                 $existingImagePath = storage_path('app/public/' . $user->profile_photo_path);
                 if (file_exists($existingImagePath)) {
-                    unlink($existingImagePath);
+                    @unlink($existingImagePath);
                 }
             }
 
-            // Store new image
-            $file = $request->file('image');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public', $filename);
-
-            $user->update(['profile_photo_path' => $filename]);
+            // Store new image in profile-images
+            $path = $request->file('image')->store('profile-images', 'public');
+            $user->update(['profile_photo_path' => $path]);
         }
 
         return redirect()->back()->with('success', 'Profile updated successfully.');

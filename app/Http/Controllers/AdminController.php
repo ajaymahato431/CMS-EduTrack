@@ -303,17 +303,18 @@ class AdminController extends Controller
     public function updateName(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'userId' => 'required|exists:users,id',
             'name' => 'required|string|min:2',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()
-                ->withErrors($validator, 'updateName') // 👈 Use a named error bag
+                ->withErrors($validator, 'updateName')
                 ->withInput();
         }
 
-        User::findOrFail($request->userId)->update([
+        /** @var User $user */
+        $user = Auth::user();
+        $user->update([
             'name' => $request->name,
         ]);
 
@@ -323,17 +324,18 @@ class AdminController extends Controller
     public function updatePassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'userId' => 'required|exists:users,id',
             'password' => 'required|string|confirmed|min:6',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()
-                ->withErrors($validator, 'updatePassword') // 👈 Use a named error bag
+                ->withErrors($validator, 'updatePassword')
                 ->withInput();
         }
 
-        User::findOrFail($request->userId)->update([
+        /** @var User $user */
+        $user = Auth::user();
+        $user->update([
             'password' => Hash::make($request->password),
         ]);
 
@@ -343,17 +345,17 @@ class AdminController extends Controller
     public function updateProfile(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'userId' => 'required|exists:users,id',
-            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048', // 👈 Changed to 'required' for clarity
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()
-                ->withErrors($validator, 'updateProfile') // 👈 Use a named error bag
+                ->withErrors($validator, 'updateProfile')
                 ->withInput();
         }
 
-        $user = User::findOrFail($request->userId);
+        /** @var User $user */
+        $user = Auth::user();
 
         if ($request->hasFile('image')) {
             // Delete existing image if it's not the default one

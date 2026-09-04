@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -23,28 +24,26 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|min:2',
-            'emailr' => 'required|string|email|max:100|unique:users,email', // Ensure you're using 'email' to check uniqueness
+            'name' => 'required|string|min:2|max:100',
+            'emailr' => 'required|string|email|max:100|unique:users,email',
             'passwordr' => 'required|string|confirmed|min:6',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', // Optional image validation
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         // Create a new user
         $user = new User();
         $user->name = $request->name;
-        $user->email = $request->emailr; // Store emailr into the email column
-        $user->password = Hash::make($request->passwordr); // Hash the password
+        $user->email = $request->emailr;
+        $user->password = Hash::make($request->passwordr);
         $user->role_id = 3; // Default role ID for new users
 
-        // Handle image upload
+        // Handle image upload safely
         if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('public/profile_images', $filename); // Store the file in the public directory
-            $user->profile_photo_path = 'profile_images/' . $filename; // Save the path in the database
+            $path = $request->file('image')->store('profile_images', 'public');
+            $user->profile_photo_path = $path;
         }
 
-        $user->save(); // Save the user to the database
+        $user->save();
 
         return back()->with('success', 'Your registration has been successful.');
     }
@@ -62,15 +61,25 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => 'required',
         ]);
+
+        $throttleKey = Str::transliterate(Str::lower($request->input('email')) . '|' . $request->ip());
+
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            return back()->with('error', "Too many login attempts. Please try again in {$seconds} seconds.");
+        }
 
         $userCredential = $request->only('email', 'password');
         if (Auth::attempt($userCredential)) {
+            RateLimiter::clear($throttleKey);
+            $request->session()->regenerate();
 
             $route = $this->redirectDash();
             return redirect($route);
         } else {
+            RateLimiter::hit($throttleKey, 60);
             return back()->with('error', 'Username & Password is incorrect');
         }
     }
@@ -97,8 +106,9 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->session()->flush();
         Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         return redirect('/');
     }
 }
