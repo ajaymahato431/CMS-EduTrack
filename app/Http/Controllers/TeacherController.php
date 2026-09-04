@@ -18,16 +18,45 @@ class TeacherController extends Controller
     public function dashboard()
     {
         $user = Auth::user();
-        return view('teacher.dashboard', compact('user'));
+        $totalCourses = Course::count();
+        $totalStudents = Student::count();
+        $recentStudents = Student::with('course')->latest()->take(5)->get();
+        $courses = Course::withCount('students')->latest()->take(5)->get();
+
+        return view('teacher.dashboard', compact('user', 'totalCourses', 'totalStudents', 'recentStudents', 'courses'));
     }
-    public function course()
+
+    public function course(Request $request)
     {
-        $courses = Course::paginate(8);
+        $query = Course::withCount('students');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('course_name', 'like', "%{$search}%");
+        }
+
+        $courses = $query->latest()->paginate(8)->withQueryString();
         return view('teacher.course', compact('courses'));
     }
-    public function students()
+
+    public function students(Request $request)
     {
-        $students = Student::with('course')->paginate(8);
+        $query = Student::with('course');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('address', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('course_id')) {
+            $query->where('course_id', $request->course_id);
+        }
+
+        $students = $query->latest()->paginate(10)->withQueryString();
         $courses = Course::all();
         return view('teacher.students', compact('students', 'courses'));
     }

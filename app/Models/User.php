@@ -30,6 +30,29 @@ class User extends Authenticatable
 
     public function role()
     {
-        return $this->belongsTo(Role::class, 'role_id', 'id'); // Changed role_id to id
+        return $this->belongsTo(Role::class, 'role_id', 'id');
+    }
+
+    public function isAdmin(): bool
+    {
+        return (int)$this->role_id === 1 || strtolower($this->role?->role_name ?? '') === 'admin';
+    }
+
+    public function isTeacher(): bool
+    {
+        return (int)$this->role_id === 2 || strtolower($this->role?->role_name ?? '') === 'teacher';
+    }
+
+    public function isStudent(): bool
+    {
+        return (int)$this->role_id === 3 || strtolower($this->role?->role_name ?? '') === 'student';
+    }
+
+    public function getAvatarUrlAttribute(): string
+    {
+        if (!empty($this->profile_photo_path)) {
+            return asset('storage/' . $this->profile_photo_path);
+        }
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name ?? 'User') . '&background=4f46e5&color=fff&bold=true';
     }
 }

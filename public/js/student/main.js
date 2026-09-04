@@ -233,7 +233,13 @@
 	    animation: "fade",
 	    prevText: "",
 	    nextText: "",
-	    slideshow: true
+	    directionNav: false,
+	    controlNav: false,
+	    slideshow: true,
+	    slideshowSpeed: 4000,
+	    animationSpeed: 800,
+	    pauseOnHover: false,
+	    pauseOnAction: false
 	  });
 	}
 

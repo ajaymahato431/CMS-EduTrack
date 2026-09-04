@@ -1,23 +1,10 @@
-﻿<footer class="footer">
+<footer class="footer">
     <div class="container-fluid">
         <div class="footer-in">
-            <p class="mb-0">&copy {{ now()->year }} EduTrack . <a href="https://www.ajaymahato9988.com.np/"
-                    style="text-decoration: none; color:white; font-weight: bold;">Ajay Mahato</a> . All Rights
-                Reserved.</p>
+            <p class="mb-0">&copy; {{ now()->year }} EduTrack &bull; Educational Management System &bull; All Rights Reserved.</p>
         </div>
     </div>
 </footer>
-
-
-</div>
-
-</div>
-
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="{{ asset('js/jquery-3.3.1.slim.min.js') }}"></script>
-<script src="{{ asset('js/popper.min.js') }}"></script>
-<script src="{{ asset('js/bootstrap.min.js') }}"></script>
-<script src="{{ asset('js/jquery-3.3.1.min.js') }}"></script>
 
 <script>
     $(function () {
@@ -32,16 +19,6 @@
                 }
             });
         }
-
-        $('.xp-menubar').on('click', function () {
-            $('#sidebar').toggleClass('active');
-            $('#content').toggleClass('active');
-            highlightActiveMenuItem();
-        });
-
-        $('.xp-menubar, .body-overlay').on('click', function () {
-            $('#sidebar, .body-overlay').toggleClass('show-nav');
-        });
 
         highlightActiveMenuItem();
 
@@ -222,6 +199,7 @@
         bindBulkDelete('#teacherBulkDeleteStudentsButton', '.teacher-student-row-checkbox', '#teacherBulkDeleteStudentsModal',
             '#teacher-bulk-delete-students-inputs', '#teacher-bulk-delete-students-message');
 
+        // Fast in-page live filter for tables
         var searchInput = $('.xp-searchbar input[type="search"]');
         var searchForm = $('.xp-searchbar form');
 
@@ -229,7 +207,7 @@
             var query = searchInput.val().toLowerCase();
             $('.table-wrapper:visible table tbody tr').each(function () {
                 var row = $(this);
-                if (!row.children('td').length) {
+                if (!row.children('td').length || row.find('.empty-state').length) {
                     return;
                 }
                 var text = row.text().toLowerCase();

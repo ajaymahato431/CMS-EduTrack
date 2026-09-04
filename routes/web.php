@@ -31,24 +31,23 @@ Route::get('/logout', [AuthController::class, 'logout']);
 
 // ********** Admin Routes *********
 Route::group(['prefix' => 'admin', 'middleware' => ['web', 'isAdmin']], function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard']);
+    Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard.legacy');
 
     Route::get('/users', [AdminController::class, 'users'])->name('AdminUsers');
     Route::post('/addUser', [AdminController::class, 'addUser'])->name('addUser');
     Route::get('/manage-role', [AdminController::class, 'manageRole'])->name('manageRole');
     Route::post('/update-role', [AdminController::class, 'updateRole'])->name('updateRole');
+    Route::post('/manage-role', [AdminController::class, 'updateRole']);
     Route::get('/course', [AdminController::class, 'course'])->name('admin.course');
     Route::get('/students', [AdminController::class, 'students'])->name('admin.students');
 
     Route::post('/editUser', [AdminController::class, 'editUser'])->name('editUser');
     Route::post('/deleteUser', [AdminController::class, 'deleteUser'])->name('deleteUser');
-    // Route::post('/deleteMultipleUser', [AdminController::class,'deleteMultipleUser'])->name('deleteMultipleUser');
-
 
     Route::post('/addCourse', [AdminController::class, 'addCourse'])->name('addCourse');
     Route::post('/editCourse', [AdminController::class, 'editCourse'])->name('editCourse');
     Route::post('/deleteCourse', [AdminController::class, 'deleteCourse'])->name('deleteCourse');
-
 
     Route::post('/addStudent', [AdminController::class, 'addStudent'])->name('addStudent');
     Route::post('/editStudent', [AdminController::class, 'editStudent'])->name('editStudent');
@@ -64,14 +63,14 @@ Route::group(['prefix' => 'admin', 'middleware' => ['web', 'isAdmin']], function
 
 // ********** Teacher Routes *********
 Route::group(['prefix' => 'teacher', 'middleware' => ['web', 'isTeacher']], function () {
-    Route::get('/dashboard', [TeacherController::class, 'dashboard']);
+    Route::get('/', [TeacherController::class, 'dashboard'])->name('teacher.dashboard');
+    Route::get('/dashboard', [TeacherController::class, 'dashboard'])->name('teacher.dashboard.legacy');
     Route::get('/course', [TeacherController::class, 'course'])->name('teacher.course');
     Route::get('/students', [TeacherController::class, 'students'])->name('teacher.students');
 
     Route::post('/addCourse', [TeacherController::class, 'addCourse'])->name('taddCourse');
     Route::post('/editCourse', [TeacherController::class, 'editCourse'])->name('teditCourse');
     Route::post('/deleteCourse', [TeacherController::class, 'deleteCourse'])->name('tdeleteCourse');
-
 
     Route::post('/addStudent', [TeacherController::class, 'addStudent'])->name('taddStudent');
     Route::post('/editStudent', [TeacherController::class, 'editStudent'])->name('teditStudent');

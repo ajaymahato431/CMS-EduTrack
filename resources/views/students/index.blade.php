@@ -111,70 +111,13 @@
             background: linear-gradient(120deg, rgba(5, 25, 55, 0.8) 0%, rgba(12, 90, 219, 0.6) 100%);
         }
 
-        .flexslider.hero-slider .flex-direction-nav {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            pointer-events: none;
-            padding: 0 1.5rem;
-            z-index: 3;
-        }
-
-        .flexslider.hero-slider .flex-direction-nav li {
-            list-style: none;
-            pointer-events: none;
-        }
-
-        .flexslider.hero-slider .flex-direction-nav a {
-            pointer-events: auto;
-            width: 52px;
-            height: 52px;
-            border-radius: 9999px;
-            background: rgba(4, 16, 35, 0.55);
-            border: 1px solid rgba(255, 255, 255, 0.45);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-indent: -9999px;
-            overflow: hidden;
-            transition: transform 0.2s ease, background 0.2s ease, border 0.2s ease;
-        }
-
-        .flexslider.hero-slider .flex-direction-nav a::before {
-            content: '';
-            width: 18px;
-            height: 18px;
-            background-repeat: no-repeat;
-            background-size: contain;
-            background-position: center;
-            display: block;
-        }
-
-        .flexslider.hero-slider .flex-direction-nav .flex-prev::before {
-            background-image: url('{{ asset(' svg/arrow-left.svg') }}');
-        }
-
-        .flexslider.hero-slider .flex-direction-nav .flex-next::before {
-            background-image: url('{{ asset(' svg/arrow-right.svg') }}');
-        }
-
-        .flexslider.hero-slider .flex-direction-nav a:hover,
-        .flexslider.hero-slider .flex-direction-nav a:focus {
-            transform: translateY(-2px);
-            background: rgba(12, 90, 219, 0.85);
-            border-color: rgba(12, 90, 219, 0.95);
-        }
-
-        .flexslider.hero-slider .flex-direction-nav a:hover::before,
-        .flexslider.hero-slider .flex-direction-nav a:focus::before {
-            filter: brightness(0) invert(1);
-        }
-
-        .flexslider.hero-slider .flex-direction-nav .flex-disabled {
-            opacity: 0.3;
-            pointer-events: none;
+        /* Hero Slider: Hide side-to-side navigation buttons and keep clean full-width transitions */
+        .flexslider.hero-slider .flex-direction-nav,
+        .flexslider .flex-direction-nav {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
         }
 
 
@@ -482,8 +425,18 @@
                         <li><a href="#testimonial">Testimonial</a></li>
 
                         <li><a href="#contact">Contact</a></li>
-                        <li><a href="/profile">Profile</a></li>
-
+                        <li>
+                            <a href="/profile" style="display: flex; align-items: center; gap: 8px;">
+                                <img src="{{ Auth::user()->avatar_url }}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1px solid #0c5adb;" alt="{{ Auth::user()->name }}">
+                                <span>Profile</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/logout" style="color: #ef4444; font-weight: 600;">
+                                <img src="{{ asset('svg/arrow-right.svg') }}" style="width: 12px; margin-right: 4px; filter: invert(34%) sepia(85%) saturate(3500%) hue-rotate(345deg);" alt="Logout">
+                                Log Out
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -496,8 +449,7 @@
                         <div class="row">
                             <div class="col-md-8 col-md-offset-2">
                                 <div class="text-center probootstrap-slider-text">
-                                    <h1 class="probootstrap-heading probootstrap-animate">Your Bright Future is Our
-                                        Mission</h1>
+                                    <h1 class="probootstrap-heading probootstrap-animate">Your Bright Future is Our Mission</h1>
                                 </div>
                             </div>
                         </div>
@@ -639,21 +591,47 @@
                 <div class="row">
                     <div class="text-center col-md-6 col-md-offset-3 section-heading probootstrap-animate">
                         <h2>Our Featured Courses</h2>
-                        <p class="lead">Unlock Your Potential with Our Premium Courses</p>
+                        <p class="lead">Unlock Your Potential with Our Premium Curriculum</p>
                     </div>
                 </div>
+
+                @if (session('success'))
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <div class="alert alert-success alert-dismissible fade in" role="alert" style="border-radius: 12px; font-weight: 600; margin-bottom: 30px;">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>
+                            <strong>Success!</strong> {{ session('success') }}
+                        </div>
+                    </div>
+                </div>
+                @endif
+
                 <!-- END row -->
                 <div class="row">
-
                     @forelse($courses as $data)
-                    <div class="col-md-6">
-                        <div class="probootstrap-service-2 probootstrap-animate">
+                    <div class="col-md-6" style="margin-bottom: 30px;">
+                        <div class="probootstrap-service-2 probootstrap-animate" style="height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
                             <div class="text" style="width:100%;">
-                                <h3 style="font-weight: bold">{{ $data->course_name }}</h3>
-                                <p>Disclaimer: The following course description is for demonstration purposes only
-                                    and does not represent actual course content or offerings.</p>
-                                <p><a href="#addStudentModal_{{ $data->id }}" class="btn btn-primary"
-                                        data-toggle="modal">Enroll now</a></p>
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+                                    <span class="label label-primary" style="font-size: 12px; border-radius: 12px; padding: 4px 10px; background: #0c5adb;">
+                                        {{ $data->credit_hours }} Credit {{ $data->credit_hours == 1 ? 'Hour' : 'Hours' }}
+                                    </span>
+                                    <span class="label label-success" style="font-size: 13px; border-radius: 12px; padding: 4px 10px; background: #10b981; font-weight: 700;">
+                                        Rs. {{ number_format($data->fee) }}
+                                    </span>
+                                    <span class="label label-default" style="font-size: 12px; border-radius: 12px; padding: 4px 10px;">
+                                        {{ $data->students()->count() }} Enrolled
+                                    </span>
+                                </div>
+                                <h3 style="font-weight: 700; color: #051937; margin-bottom: 10px;">{{ $data->course_name }}</h3>
+                                <p style="color: #64748b; line-height: 1.6; margin-bottom: 20px;">
+                                    Comprehensive learning module designed by expert educators. Gain practical skills, earn certified credits, and accelerate your academic career.
+                                </p>
+                                <p>
+                                    <a href="#addStudentModal_{{ $data->id }}" class="btn btn-primary" data-toggle="modal" style="border-radius: 50px; font-weight: 600; padding: 8px 24px;">
+                                        Enroll Now &bull; Rs. {{ number_format($data->fee) }}
+                                    </a>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -663,74 +641,66 @@
                         <div class="modal-dialog" role="document">
                             <form action="{{ route('enrollStudent') }}" method="POST">
                                 @csrf
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Enroll Now</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
+                                <div class="modal-content" style="border-radius: 16px; overflow: hidden; border: none; box-shadow: 0 20px 50px rgba(0,0,0,0.2);">
+                                    <div class="modal-header" style="background: linear-gradient(135deg, #051937 0%, #0c5adb 100%); color: #fff; padding: 20px 24px;">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: #fff; opacity: 0.85;">&times;</button>
+                                        <h4 class="modal-title" style="color: #fff; font-weight: 700;">Enroll in {{ $data->course_name }}</h4>
                                     </div>
-                                    <div class="modal-body">
-
+                                    <div class="modal-body" style="padding: 24px;">
                                         <div class="form-group">
-                                            <label for="name">Name</label>
-                                            <input type="text" name="name" id="name" class="form-control"
-                                                value="{{ old('name', auth()->user()->name) }}" placeholder="Enter Name"
-                                                required>
+                                            <label for="name_{{ $data->id }}" style="font-weight: 600; color: #334155;">Full Name</label>
+                                            <input type="text" name="name" id="name_{{ $data->id }}" class="form-control"
+                                                value="{{ old('name', auth()->user()->name) }}" placeholder="Enter Full Name" required>
                                         </div>
                                         <div class="form-group">
-                                            <label for="sex">Sex</label>
-                                            <select name="sex" id="sex" class="form-control" required>
-                                                <option value="" {{ old('sex') ? '' : 'selected' }}>Select Sex</option>
-                                                <option value="male" {{ old('sex')=='male' ? 'selected' : '' }}>Male
-                                                </option>
-                                                <option value="female" {{ old('sex')=='female' ? 'selected' : '' }}>
-                                                    Female</option>
-                                                <option value="other" {{ old('sex')=='other' ? 'selected' : '' }}>Other
-                                                </option>
+                                            <label for="sex_{{ $data->id }}" style="font-weight: 600; color: #334155;">Gender</label>
+                                            <select name="sex" id="sex_{{ $data->id }}" class="form-control" required>
+                                                <option value="" {{ old('sex') ? '' : 'selected' }}>Select Gender</option>
+                                                <option value="male" {{ old('sex')=='male' ? 'selected' : '' }}>Male</option>
+                                                <option value="female" {{ old('sex')=='female' ? 'selected' : '' }}>Female</option>
+                                                <option value="other" {{ old('sex')=='other' ? 'selected' : '' }}>Other</option>
                                             </select>
                                         </div>
                                         <div class="form-group">
-                                            <label for="phone">Phone</label>
-                                            <input type="tel" name="phone" id="phone" class="form-control"
-                                                value="{{ old('phone') }}" placeholder="Enter Phone" required>
+                                            <label for="phone_{{ $data->id }}" style="font-weight: 600; color: #334155;">Phone Number</label>
+                                            <input type="tel" name="phone" id="phone_{{ $data->id }}" class="form-control"
+                                                value="{{ old('phone') }}" placeholder="Enter Phone Number" required>
                                         </div>
                                         <div class="form-group">
-                                            <label for="address">Address</label>
-                                            <input type="text" name="address" id="address" class="form-control"
-                                                value="{{ old('address') }}" placeholder="Enter Address" required>
+                                            <label for="address_{{ $data->id }}" style="font-weight: 600; color: #334155;">Residential Address</label>
+                                            <input type="text" name="address" id="address_{{ $data->id }}" class="form-control"
+                                                value="{{ old('address') }}" placeholder="City / Address" required>
                                         </div>
                                         <div class="form-group">
-                                            <label for="course_id">Course</label>
-                                            <select name="course_id" id="course_id" class="form-control" required>
-                                                <option value="" {{ old('course_id') ? '' : 'selected' }}>Select Course
-                                                </option>
+                                            <label for="course_id_{{ $data->id }}" style="font-weight: 600; color: #334155;">Course</label>
+                                            <select name="course_id" id="course_id_{{ $data->id }}" class="form-control" required>
                                                 @foreach ($courses as $course)
-                                                <option value="{{ $course->id }}" {{ old('course_id', $data->id ) ==
-                                                    $course->id ? 'selected' : ''}}>
-                                                    {{ $course->course_name }}
+                                                <option value="{{ $course->id }}" {{ old('course_id', $data->id) == $course->id ? 'selected' : ''}}>
+                                                    {{ $course->course_name }} (Rs. {{ number_format($course->fee) }})
                                                 </option>
                                                 @endforeach
                                             </select>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="paid_fee">Paid Fee</label>
-                                            <input type="number" name="paid_fee" id="paid_fee" class="form-control"
-                                                value="{{ old('paid_fee', $data->fee) }}" placeholder="Enter Paid Fee"
+                                        <div class="form-group mb-0">
+                                            <label for="paid_fee_{{ $data->id }}" style="font-weight: 600; color: #334155;">Paid Fee (Rs.)</label>
+                                            <input type="number" name="paid_fee" id="paid_fee_{{ $data->id }}" class="form-control"
+                                                value="{{ old('paid_fee', $data->fee) }}" placeholder="Tuition Fee"
                                                 required min="0">
                                         </div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-dismiss="modal">Cancel</button>
-                                        <input type="submit" class="btn btn-success" value="Enroll">
+                                    <div class="modal-footer" style="background: #f8fafc; padding: 16px 24px;">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal" style="border-radius: 50px;">Cancel</button>
+                                        <input type="submit" class="btn btn-success" value="Confirm Enrollment" style="border-radius: 50px; padding: 8px 24px; font-weight: 600;">
                                     </div>
                                 </div>
                             </form>
                         </div>
                     </div>
                     @empty
-                    <h2>No Courses found</h2>
+                    <div class="col-md-12 text-center" style="padding: 60px 0;">
+                        <h3 style="color: #64748b;">No Courses Available Currently</h3>
+                        <p>Please check back shortly for upcoming curriculum schedules.</p>
+                    </div>
                     @endforelse
                 </div>
             </div>
@@ -998,6 +968,23 @@
     <script src="{{ asset('js/student/scripts.min.js') }}"></script>
     <script src="{{ asset('js/student/main.min.js') }}"></script>
     <script src="{{ asset('js/student/custom.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+            if (typeof $.fn.flexslider === 'function') {
+                $('.flexslider').flexslider({
+                    animation: "fade",
+                    directionNav: false,
+                    controlNav: false,
+                    slideshow: true,
+                    slideshowSpeed: 4000,
+                    animationSpeed: 800,
+                    pauseOnHover: false,
+                    pauseOnAction: false
+                });
+            }
+        });
+    </script>
 
 </body>
 

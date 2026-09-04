@@ -20,25 +20,70 @@ class AdminController extends Controller
     public function dashboard()
     {
         $user = Auth::user();
-        return view('admin.dashboard', compact('user'));
+        $totalStudents = Student::count();
+        $totalTeachers = User::where('role_id', 2)->count();
+        $totalCourses = Course::count();
+        $totalCollectedFee = (float) Student::sum('paid_fee');
+
+        $recentStudents = Student::with('course')->latest()->take(5)->get();
+        $recentCourses = Course::withCount('students')->latest()->take(4)->get();
+
+        return view('admin.dashboard', compact(
+            'user',
+            'totalStudents',
+            'totalTeachers',
+            'totalCourses',
+            'totalCollectedFee',
+            'recentStudents',
+            'recentCourses'
+        ));
     }
 
-    public function users()
+    public function users(Request $request)
     {
-        $users = User::with('role')
-            ->where('id', '!=', auth()->id())
-            ->paginate(8);
+        $query = User::with('role')->where('id', '!=', auth()->id());
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('role_id')) {
+            $query->where('role_id', $request->role_id);
+        }
+
+        $users = $query->latest()->paginate(10)->withQueryString();
         $roles = Role::all();
         return view('admin.user', compact('users', 'roles'));
     }
 
-    public function manageRole()
+    public function manageRole(Request $request)
     {
-        $users = User::with('role')
-            ->where('role_id', '!=', 1)
-            ->get();
+        $query = User::with('role')->where('role_id', '!=', 1);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('role_id')) {
+            $query->where('role_id', $request->role_id);
+        }
+
+        $users = $query->latest()->paginate(10)->withQueryString();
         $roles = Role::all();
-        return view('admin.manage-role', compact('users', 'roles'));
+        $roleCounts = [
+            'total' => User::where('role_id', '!=', 1)->count(),
+            'teachers' => User::where('role_id', 2)->count(),
+            'students' => User::where('role_id', 3)->count(),
+        ];
+        return view('admin.manage-role', compact('users', 'roles', 'roleCounts'));
     }
 
     public function updateRole(Request $request)
@@ -55,15 +100,37 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Role updated successfully.');
     }
 
-    public function course()
+    public function course(Request $request)
     {
-        $courses = Course::paginate(8);
+        $query = Course::withCount('students');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('course_name', 'like', "%{$search}%");
+        }
+
+        $courses = $query->latest()->paginate(8)->withQueryString();
         return view('admin.course', compact('courses'));
     }
 
-    public function students()
+    public function students(Request $request)
     {
-        $students = Student::with('course')->paginate(8);
+        $query = Student::with('course');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('address', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('course_id')) {
+            $query->where('course_id', $request->course_id);
+        }
+
+        $students = $query->latest()->paginate(10)->withQueryString();
         $courses = Course::all();
         return view('admin.students', compact('students', 'courses'));
     }

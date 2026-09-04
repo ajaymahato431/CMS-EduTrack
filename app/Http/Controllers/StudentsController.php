@@ -16,7 +16,12 @@ class StudentsController extends Controller
     public function profile()
     {
         $user = Auth::user();
-        return view('students.profile', compact('user'));
+        $enrollments = Student::with('course')
+            ->where('name', $user->name)
+            ->latest()
+            ->get();
+        $totalPaid = $enrollments->sum('paid_fee');
+        return view('students.profile', compact('user', 'enrollments', 'totalPaid'));
     }
 
     public function dashboard()

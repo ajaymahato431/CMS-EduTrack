@@ -4,14 +4,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>EduTrack - LogIn</title>
+    <title>EduTrack &bull; Portal Login</title>
 
-    <link rel="icon" type="image/x-icon" href="/storage/favicon.ico">
-
+    <link rel="icon" type="image/x-icon" href="{{ asset('img/favicon.ico') }}">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/loginpage.css') }}">
+    <style>
+        .input-group-custom {
+            position: relative;
+            width: 100%;
+        }
+        .input-group-custom input {
+            padding-right: 40px !important;
+        }
+        .toggle-password-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none !important;
+            border: none !important;
+            color: #888;
+            padding: 0 !important;
+            margin: 0 !important;
+            cursor: pointer;
+            width: auto !important;
+            height: auto !important;
+            font-size: 14px;
+        }
+        .toggle-password-btn:hover {
+            color: #4f46e5;
+        }
+        .alert-pill {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .alert-pill-success {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        .alert-pill-error {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+        .error-hint {
+            color: #ef4444;
+            font-size: 11px;
+            margin-top: -4px;
+            margin-bottom: 6px;
+            width: 100%;
+            text-align: left;
+        }
+    </style>
 </head>
 
 <body>
@@ -22,89 +74,106 @@
     @endphp
 
     <div class="container{{ $registrationHasError ? ' active' : '' }}" id="container">
+        {{-- Register Form --}}
         <div class="form-container sign-up">
-
             <form action="{{ route('register') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <h1>Create Account</h1>
-
-                <span>Use your email for registration</span>
-
-                <input type="text" name="name" placeholder="Name" value="{{ old('name') }}">
-                @error('name')
-                <span style="color: red;">{{ $message }}</span>
-                @enderror
-
-                <input type="email" name="emailr" placeholder="Email" value="{{ old('emailr') }}">
-                @error('emailr')
-                <span style="color: red;">{{ $message }}</span>
-                @enderror
-
-                <input type="password" name="passwordr" placeholder="Password">
-                @error('passwordr')
-                <span style="color: red;">{{ $message }}</span>
-                @enderror
-
-                <input type="password" name="passwordr_confirmation" placeholder="Confirm Password">
-
-                <input type="file" name="image">
-                @error('image')
-                <span style="color: red;">{{ $message }}</span>
-                @enderror
+                <h1 style="margin-bottom: 8px;">Create Account</h1>
+                <span style="color: #64748b; margin-bottom: 12px;">Sign up as a new student learner</span>
 
                 @if (session('success'))
-                <p style="color: green;">{{ session('success') }}</p>
+                <div class="alert-pill alert-pill-success">{{ session('success') }}</div>
                 @endif
 
-                <button type="submit">Sign Up</button>
+                <input type="text" name="name" placeholder="Full Name" value="{{ old('name') }}" required>
+                @error('name')
+                <div class="error-hint">{{ $message }}</div>
+                @enderror
+
+                <input type="email" name="emailr" placeholder="Email Address" value="{{ old('emailr') }}" required>
+                @error('emailr')
+                <div class="error-hint">{{ $message }}</div>
+                @enderror
+
+                <div class="input-group-custom">
+                    <input type="password" name="passwordr" id="reg-password" placeholder="Password (min 6 chars)" required>
+                    <button type="button" class="toggle-password-btn" onclick="togglePassword('reg-password', this)">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+                @error('passwordr')
+                <div class="error-hint">{{ $message }}</div>
+                @enderror
+
+                <div class="input-group-custom">
+                    <input type="password" name="passwordr_confirmation" id="reg-password-confirm" placeholder="Confirm Password" required>
+                    <button type="button" class="toggle-password-btn" onclick="togglePassword('reg-password-confirm', this)">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+
+                <div style="width: 100%; text-align: left; margin: 6px 0;">
+                    <label style="font-size: 11px; color: #64748b;">Profile Picture (Optional)</label>
+                    <input type="file" name="image" accept="image/*" style="padding: 6px; background: #f1f5f9;">
+                </div>
+                @error('image')
+                <div class="error-hint">{{ $message }}</div>
+                @enderror
+
+                <button type="submit" style="margin-top: 14px;">Sign Up</button>
             </form>
-
         </div>
-        <div class="form-container sign-in">
 
+        {{-- Sign In Form --}}
+        <div class="form-container sign-in">
             <form action="{{ route('login') }}" method="POST">
                 @csrf
-                <h1>Sign In</h1>
-
-                <span>Use your email password</span>
-
-                <input type="email" name="email" placeholder="Email" value="{{ old('email') }}" required>
-                @error('email')
-                <span style="color: red;">{{ $message }}</span>
-                @enderror
-
-                <input type="password" name="password" placeholder="Password" required>
-                @error('password')
-                <span style="color: red;">{{ $message }}</span>
-                @enderror
-
-                <a href="#">→ Forget Your Password? ←</a>
+                <h1 style="margin-bottom: 8px;">Sign In</h1>
+                <span style="color: #64748b; margin-bottom: 12px;">Access your EduTrack account</span>
 
                 @if (session('error'))
-                <p style="color: red;">{{ session('error') }}</p>
+                <div class="alert-pill alert-pill-error">{{ session('error') }}</div>
                 @endif
 
-                <button type="submit">Sign In</button>
-            </form>
+                @if (session('success'))
+                <div class="alert-pill alert-pill-success">{{ session('success') }}</div>
+                @endif
 
+                <input type="email" name="email" placeholder="Email Address" value="{{ old('email') }}" required autofocus>
+                @error('email')
+                <div class="error-hint">{{ $message }}</div>
+                @enderror
+
+                <div class="input-group-custom">
+                    <input type="password" name="password" id="login-password" placeholder="Password" required>
+                    <button type="button" class="toggle-password-btn" onclick="togglePassword('login-password', this)">
+                        <i class="fa-regular fa-eye"></i>
+                    </button>
+                </div>
+                @error('password')
+                <div class="error-hint">{{ $message }}</div>
+                @enderror
+
+                <button type="submit" style="margin-top: 16px;">Sign In</button>
+            </form>
         </div>
+
+        {{-- Toggle Panels --}}
         <div class="toggle-container">
             <div class="toggle">
                 <div class="toggle-panel toggle-left">
                     <h1>Welcome Back!</h1>
-                    <p>Enter your personal details to use all of site features</p>
+                    <p>Already have an account? Sign in to resume your learning and management session</p>
                     <button class="hidden" id="login">Sign In</button>
                 </div>
                 <div class="toggle-panel toggle-right">
-                    <h1>EduTrack</h1>
-                    <p>Register with your personal details to use all of site features</p>
+                    <h1>EduTrack Portal</h1>
+                    <p>Register as a new student learner or switch to create your educational profile</p>
                     <button class="hidden" id="register">Sign Up</button>
                 </div>
             </div>
         </div>
     </div>
-
-    <script src="{{ asset('css/loginpage.css') }}"></script>
 
     <script>
         const container = document.getElementById('container');
@@ -118,8 +187,21 @@
         loginBtn.addEventListener('click', () => {
             container.classList.remove("active");
         });
-    </script>
 
+        function togglePassword(inputId, triggerBtn) {
+            const input = document.getElementById(inputId);
+            const icon = triggerBtn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
 </body>
 
 </html>
