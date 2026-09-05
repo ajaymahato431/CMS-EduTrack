@@ -660,7 +660,7 @@
                 <div class="container">
                     <div class="row">
                         <div class="text-left col-md-8">
-                            <p>&copy; {{ now()->year }} <a href="https://notedinsights.com/">EduTrack</a>. All Rights Reserved. Designed &amp; Developed by <a href="https://ajaymahato9988.com.np/">Ajay Mahato</a></p>
+                            <p>&copy; {{ now()->year }} <a href="https://notedinsights.com/">EduTrack</a>. All Rights Reserved. Designed and Developed by <a href="https://ajaymahato9988.com.np" target="_blank" rel="noopener noreferrer">Ajay Mahato</a></p>
                         </div>
                         <div class="col-md-4 probootstrap-back-to-top">
                             <p><a href="#" class="js-backtotop">Back to top <img src="{{ asset('svg/arrow-up.svg') }}" alt="Top"></a></p>

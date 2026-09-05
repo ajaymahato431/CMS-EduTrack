@@ -63,6 +63,25 @@
             width: 100%;
             text-align: left;
         }
+        body {
+            min-height: 100vh;
+            height: auto !important;
+            padding: 24px 12px;
+        }
+        .portal-footer {
+            margin-top: 18px;
+            font-size: 13px;
+            color: #475569;
+            text-align: center;
+        }
+        .portal-footer a {
+            color: #4f46e5;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .portal-footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 
@@ -174,6 +193,10 @@
             </div>
         </div>
     </div>
+
+    <footer class="portal-footer">
+        <p>Designed and Developed by <a href="https://ajaymahato9988.com.np" target="_blank" rel="noopener noreferrer">Ajay Mahato</a></p>
+    </footer>
 
     <script>
         const container = document.getElementById('container');

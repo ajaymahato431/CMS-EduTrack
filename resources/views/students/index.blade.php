@@ -948,7 +948,7 @@
                         <div class="text-left col-md-8">
                             <p>&copy; {{ now()->year }} <a href="https://notedinsights.com/">EduTrack</a>. All Rights
                                 Reserved.
-                                Designed &amp; Developed by <a href="https://ajaymahato9988.com.np/">Ajay Mahato</a>
+                                Designed and Developed by <a href="https://ajaymahato9988.com.np" target="_blank" rel="noopener noreferrer">Ajay Mahato</a>
                             </p>
                         </div>
                         <div class="col-md-4 probootstrap-back-to-top">

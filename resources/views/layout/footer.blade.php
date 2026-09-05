@@ -1,7 +1,7 @@
 <footer class="footer">
     <div class="container-fluid">
         <div class="footer-in">
-            <p class="mb-0">&copy; {{ now()->year }} EduTrack &bull; Educational Management System &bull; All Rights Reserved.</p>
+            <p class="mb-0">&copy; {{ now()->year }} EduTrack &bull; Educational Management System &bull; All Rights Reserved. &bull; Designed and Developed by <a href="https://ajaymahato9988.com.np" target="_blank" rel="noopener noreferrer" style="color: #49D292; font-weight: 500; text-decoration: none;">Ajay Mahato</a></p>
         </div>
     </div>
 </footer>
